@@ -16,28 +16,28 @@ namespace BookFlix.API.Repositories
         }
         
         //get all
-        public async Task<List<Rating>> GetAllAsync(string? filterOn = null, int? filterQuery = 0,
-            string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000)
+        public async Task<List<Rating>> GetAllAsync(string? filterOn, string? filterQuery,
+            string? sortBy, bool isAscending, int pageNumber, int pageSize)
         {
             //collecting ratings from db 'as queryable' to apply filter
             var ratings = dbContext.Ratings.AsQueryable();
 
             //filtering
-            if (string.IsNullOrWhiteSpace(filterOn) == false && filterQuery!=0)
+            if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
             {
-                if (filterOn.Equals("RatingValue", StringComparison.OrdinalIgnoreCase))
+                if (filterOn.Equals("RatingName", StringComparison.OrdinalIgnoreCase))
                 {
-                    ratings = ratings.Where(x => x.RatingValue == filterQuery);
+                    ratings = ratings.Where(x => x.RatingName == filterQuery);
                 }
             }
 
             //sorting
             if (string.IsNullOrWhiteSpace(sortBy) == false)
             {
-                //sort by ratingValue
-                if (sortBy.Equals("RatingValue", StringComparison.OrdinalIgnoreCase))
+                //sort by ratingName
+                if (sortBy.Equals("RatingName", StringComparison.OrdinalIgnoreCase))
                 {
-                    ratings = isAscending ? ratings.OrderBy(x => x.RatingValue) : ratings.OrderByDescending(x => x.RatingValue);
+                    ratings = isAscending ? ratings.OrderBy(x => x.RatingName) : ratings.OrderByDescending(x => x.RatingName);
                 }
             }
 
@@ -77,7 +77,7 @@ namespace BookFlix.API.Repositories
                 return null;
             }
 
-            ratingDomainModel.RatingValue = rating.RatingValue;
+            ratingDomainModel.RatingName = rating.RatingName;
             await dbContext.SaveChangesAsync();
 
             return ratingDomainModel;

@@ -26,44 +26,44 @@ namespace BookFlix.API.Controllers
             this.mapper = mapper;
         }
 
-        //GET: api/ratings?filterOn=RatingValue&filterQuery="string"&sortBy=RatingValue&isAscending=true&pageNumber=1&pageSize=1000
+        //GET: api/ratings?filterOn=ratingName&filterQuery="string"&sortBy=ratingName&isAscending=true&pageNumber=1&pageSize=1000
         [HttpGet]
         [Authorize(Roles = "Reader, Writer")]
-        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] int? filterQuery,
-            [FromQuery] string? sortBy, [FromQuery] bool? isAscending, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
+        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool isAscending = true, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
         {
             //fetching data directly from dataset(domain models)
-            //var ratingValuesDomain = await dbContext.Ratings.ToListAsync();
+            //var ratingNamesDomain = await dbContext.Ratings.ToListAsync();
 
             // Validate filterOn and sortBy parameters
-            if (string.IsNullOrEmpty(filterOn) == false && !filterOn.Equals("RatingValue", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(filterOn) == false && !filterOn.Equals("RatingName", StringComparison.OrdinalIgnoreCase))
             {
-                return BadRequest($"Invalid filterOn parameter. Valid column is : RatingValue");
+                return BadRequest($"Invalid filterOn parameter. Valid column is : RatingName");
             }
 
-            if (!string.IsNullOrEmpty(sortBy) && !sortBy.Equals("RatingValue", StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(sortBy) && !sortBy.Equals("ratingName", StringComparison.OrdinalIgnoreCase))
             {
-                return BadRequest($"Invalid sortBy parameter. Valid column is : RatingValue");
+                return BadRequest($"Invalid sortBy parameter. Valid column is : RatingName");
             }
 
             //controller fetching data from repository which fetches data from dataset(domain models)
-            var ratingValuesDomain = await ratingRepository.GetAllAsync(filterOn, filterQuery, 
-                sortBy, isAscending ?? true, pageNumber, pageSize);
+            var ratingNamesDomain = await ratingRepository.GetAllAsync(filterOn, filterQuery, 
+                sortBy, isAscending, pageNumber, pageSize);
 
             //map domain models to dtos
-            /*var ratingValuesDto = new List<RatingDto>();
-            foreach (var rating in ratingValuesDomain)
+            /*var ratingNamesDto = new List<RatingDto>();
+            foreach (var rating in RatingNamesDomain)
             {
-                ratingValuesDto.Add(new RatingDto()
+                ratingNamesDto.Add(new RatingDto()
                 {
                     Id = rating.Id,
-                    RatingValue = rating.RatingValue
+                    ratingName = rating.RatingName
                 });
             }*/
 
             //returing data from dto
-            //return Ok(ratingValuesDto);
-            return Ok(mapper.Map<List<RatingDto>>(ratingValuesDomain));
+            //return Ok(RatingNamesDto);
+            return Ok(mapper.Map<List<RatingDto>>(ratingNamesDomain));
         }
 
         [HttpGet]
@@ -72,27 +72,27 @@ namespace BookFlix.API.Controllers
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             // using find(id) method is one way of getting data using id, but find methos works only with primary keys
-            //var ratingValues = dbContext.Ratings.Find(id);
+            //var ratingNames = dbContext.Ratings.Find(id);
 
             // using LINQ method - firstordefault
-            //var ratingValuesDomain = await dbContext.Ratings.FirstOrDefaultAsync(x => x.Id == id);
+            //var ratingNamesDomain = await dbContext.Ratings.FirstOrDefaultAsync(x => x.Id == id);
 
             //controller fetching data from repository which fetches data from dataset(domain models)
-            var ratingValuesDomain = await ratingRepository.GetByIdAsync(id);
+            var ratingNamesDomain = await ratingRepository.GetByIdAsync(id);
 
-            if (ratingValuesDomain == null)
+            if (ratingNamesDomain == null)
             {
                 return BadRequest();
             }
 
-            /*var ratingValuesDto = new RatingDto
+            /*var RatingNamesDto = new RatingDto
             {
-                Id = ratingValuesDomain.Id,
-                RatingValue = ratingValuesDomain.RatingValue
+                Id = RatingNamesDomain.Id,
+                RatingName = RatingNamesDomain.RatingName
             };*/
 
-            //return Ok(ratingValuesDto);
-            return Ok(mapper.Map<RatingDto>(ratingValuesDomain));
+            //return Ok(ratingNamesDto);
+            return Ok(mapper.Map<RatingDto>(ratingNamesDomain));
         }
 
         [HttpPost]
@@ -103,7 +103,7 @@ namespace BookFlix.API.Controllers
             //map dto to domain model
             /*var ratingDomainModel = new Rating
             {
-                RatingValue = createRatingDto.RatingValue
+                RatingName = createRatingDto.RatingName
             };*/
             var ratingDomainModel = mapper.Map<Rating>(createRatingDto);
 
@@ -118,7 +118,7 @@ namespace BookFlix.API.Controllers
             /*var ratingDto = new RatingDto
             {
                 Id = ratingDomainModel.Id,
-                RatingValue = ratingDomainModel.RatingValue
+                RatingName = ratingDomainModel.RatingName
             };*/
             var ratingDto = mapper.Map<RatingDto>(ratingDomainModel);
 
@@ -140,7 +140,7 @@ namespace BookFlix.API.Controllers
             //}
 
             //map domain model to dto
-            //ratingDomainModel.RatingValue = updateRatingDto.RatingValue;
+            //ratingDomainModel.RatingName = updateRatingDto.RatingName;
 
             //save these changes in DB
             //await dbContext.SaveChangesAsync();
@@ -148,7 +148,7 @@ namespace BookFlix.API.Controllers
             //creating new domain model from given dto
             /*var ratingDomainModel = new Rating
             {
-                RatingValue = updateRatingDto.RatingValue
+                RatingName = updateRatingDto.RatingName
             };*/
             var ratingDomainModel = mapper.Map<Rating>(updateRatingDto);
 
@@ -163,7 +163,7 @@ namespace BookFlix.API.Controllers
             /*var ratingDto = new RatingDto
             {
                 Id = ratingDomainModel.Id,
-                RatingValue = updateRatingDto.RatingValue
+                RatingName = updateRatingDto.RatingName
             };*/
             var ratingDto = mapper.Map<RatingDto>(ratingDomainModel);
 
@@ -194,7 +194,7 @@ namespace BookFlix.API.Controllers
             /*var ratingDto = new RatingDto
             {
                 Id = ratingDomainModel.Id,
-                RatingValue = ratingDomainModel.RatingValue
+                RatingName = ratingDomainModel.RatingName
             };*/
 
             return Ok(mapper.Map<RatingDto>(ratingDomainModel));
