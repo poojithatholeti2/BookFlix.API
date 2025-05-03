@@ -61,27 +61,17 @@ namespace BookFlix.API.Data
                 new Rating()
                 {
                     Id = Guid.Parse("a3c7d69e-0c07-47db-a0fe-f7eb6160f568"),
-                    RatingValue = 1
+                    RatingName = "Good"
                 },
                 new Rating()
                 {
                     Id = Guid.Parse("4bb3890e-2acc-4ebe-9e5f-e0527b4b33cb"),
-                    RatingValue = 2
+                    RatingName = "Average"
                 },
                 new Rating()
                 {
                     Id = Guid.Parse("91f9aee4-d7d3-4ea1-b4ba-e6c11c37efe3"),
-                    RatingValue = 3
-                },
-                new Rating()
-                {
-                    Id = Guid.Parse("7a500d61-2f35-423e-a1e1-e6b58f6c0253"),
-                    RatingValue = 4
-                },
-                new Rating()
-                {
-                    Id = Guid.Parse("1003b2e0-fbee-4a48-86c8-209917e9fa69"),
-                    RatingValue = 5
+                    RatingName = "Bad"
                 }
             };
 

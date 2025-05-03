@@ -4,8 +4,7 @@ namespace BookFlix.API.Repositories
 {
     public interface IRatingRepository
     {
-        Task<List<Rating>> GetAllAsync(string? filterOn = null, int? filterQuery = 0,
-            string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000);
+        Task<List<Rating>> GetAllAsync(string? filterOn, string? filterQuery, string? sortBy, bool isAscending, int pageNumber, int pageSize);
         Task<Rating?> GetByIdAsync(Guid id);
         Task<Rating> CreateAsync(Rating rating);
         Task<Rating?> UpdateAsync(Guid id, Rating rating);
