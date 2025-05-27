@@ -19,6 +19,10 @@ namespace BookFlix.API.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Book>()
+                .HasIndex(book => new { book.Title, book.Author, book.Price })
+                .IsUnique();
+
             //seed data for category database
             //fiction, literature, technology, history, finance
             var categories = new List<Category>()
@@ -55,7 +59,6 @@ namespace BookFlix.API.Data
 
 
             //seed data for rating database
-            //1, 2, 3, 4, 5
             var ratings = new List<Rating>()
             {
                 new Rating()
