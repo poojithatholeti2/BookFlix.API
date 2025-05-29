@@ -14,12 +14,28 @@ namespace BookFlix.API.Repositories
         }
 
         //create
-        public async Task<Book> CreateAsync(Book book)
+        public async Task<Book?> CreateAsync(Book book)
         {
             await dbContext.Books.AddAsync(book);
             await dbContext.SaveChangesAsync();
 
-            return book;
+            var createdBook = await dbContext.Books.Include("Category").Include("Rating").FirstOrDefaultAsync(b => book.Id == b.Id);
+
+            return createdBook==null ? null : createdBook;
+        }
+
+        //create multiple
+        public async Task<List<Book>?> CreateMultipleAsync(List<Book> books)
+        {
+            var createdBooks = new List<Book>();
+
+            foreach(var b in books)
+            {
+                var createdBook = await CreateAsync(b);
+                if (createdBook == null) return null;
+                createdBooks.Add(createdBook);
+            }
+            return createdBooks;
         }
 
         //get all
@@ -73,9 +89,6 @@ namespace BookFlix.API.Repositories
             //return filtered and sorted result with pagination
             //skips 'skipResults' number of pages and takes 'pageSize' number of records from there
             return await books.Skip(skipResults).Take(pageSize).ToListAsync();
-
-            //without filtering, without sorting, without pagination
-            //return await dbContext.Books.Include("Category").Include("Rating").ToListAsync();
         }
 
         //get by id
@@ -103,13 +116,15 @@ namespace BookFlix.API.Repositories
 
             await dbContext.SaveChangesAsync();
 
-            return bookDomainModel;
+            var result = await GetByIdAsync(id);
+
+            return result;
         }
 
         //delete
         public async Task<Book?> DeleteAsync(Guid id)
         {
-            var bookDomainModel = await dbContext.Books.FirstOrDefaultAsync(x =>x.Id == id);
+            var bookDomainModel = await GetByIdAsync(id);
 
             if(bookDomainModel == null)
             {

@@ -31,14 +31,12 @@ namespace BookFlix.API.Controllers
             };
 
             var identityResult = await userManager.CreateAsync(identityUser, registerRequestDto.Password);
-
             if (identityResult.Succeeded)
             {
                 //add roles to this user
                 if (registerRequestDto.Roles != null && registerRequestDto.Roles.Any())
                 {
                     identityResult =  await userManager.AddToRolesAsync(identityUser, registerRequestDto.Roles);
-
                     if (identityResult.Succeeded)
                     {
                         return Ok("User has been created successfully! Please login now.");

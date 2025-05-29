@@ -47,9 +47,6 @@ namespace BookFlix.API.Repositories
             //return filtered and sorted result with pagination
             //skips 'skipResults' number of pages and takes 'pageSize' number of records from there
             return await ratings.Skip(skipResults).Take(pageSize).ToListAsync();
-
-            //without filtering, without sorting, without pagination
-            //return await dbContext.Ratings.ToListAsync();
         }
 
         //get by id

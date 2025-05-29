@@ -13,18 +13,17 @@ namespace BookFlix.API.Data
         public DbSet<Book> Books { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Rating> Ratings { get; set; }
-        public DbSet<Image> Images { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            //including indexing (hashing) to remove Book triplet duplicates
             modelBuilder.Entity<Book>()
                 .HasIndex(book => new { book.Title, book.Author, book.Price })
                 .IsUnique();
 
             //seed data for category database
-            //fiction, literature, technology, history, finance
             var categories = new List<Category>()
             {
                 new Category()
