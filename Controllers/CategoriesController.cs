@@ -30,13 +30,10 @@ namespace BookFlix.API.Controllers
 
         //GET: api/books?filterOn=Title&filterQuery="string"&sortBy=Title&isAscending=true&pageNumber=1&pageSize=1000
         [HttpGet]
-        //[Authorize(Roles = "Reader, Writer")]
+        [Authorize(Roles = "Reader,Writer,Admin")]
         public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery, 
             [FromQuery] string? sortBy, [FromQuery] bool? isAscending, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
         {
-            //logger logging info
-            //logger.LogInformation("GetAll Categories method is invoked");
-
             // Validate filterOn and sortBy parameters
             if (string.IsNullOrEmpty(filterOn)==false && !filterOn.Equals("Title", StringComparison.OrdinalIgnoreCase))
             {
@@ -48,15 +45,9 @@ namespace BookFlix.API.Controllers
                 return BadRequest($"Invalid sortBy parameter. Valid column is : Title");
             }
 
-            //throwing custom exception to check global exception handling via exceptionHandlerMiddleware
-            //throw new Exception("custom error occurred!");
-
             //controller fetching data from repository
             var categoryDomainModel = await categoryRepository.GetAllAsync(filterOn, filterQuery, 
                 sortBy, isAscending ?? true, pageNumber, pageSize);
-
-            //logging info again
-            //logger.LogInformation($"Finished GetAll Categories request with data: {JsonSerializer.Serialize(categoryDomainModel)}");
 
             //domain model converted to dto and returned to client
             return Ok(mapper.Map<List<CategoryDto>>(categoryDomainModel));
@@ -64,7 +55,7 @@ namespace BookFlix.API.Controllers
 
         [HttpGet]
         [Route("{id:guid}")]
-        [Authorize(Roles = "Reader, Writer")]
+        [Authorize(Roles = "Reader,Writer,Admin")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             //controller fetching data from repository
@@ -81,7 +72,7 @@ namespace BookFlix.API.Controllers
 
         [HttpPost]
         [ValidateModel]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateCategoryDto createCategoryDto)
         {
             //mapping createDto to domain model
@@ -100,7 +91,7 @@ namespace BookFlix.API.Controllers
         [HttpPut]
         [Route("{id:guid}")]
         [ValidateModel]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateCategoryDto updateCategoryDto)
         {
             //mapping updateDto to domain model
@@ -123,12 +114,11 @@ namespace BookFlix.API.Controllers
 
         [HttpDelete]
         [Route("{id:guid}")]
-        [Authorize(Roles = "Writer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             //controller fetching data from repository
             var categoryDomainModel = await categoryRepository.DeleteAsync(id);
-
             if(categoryDomainModel == null)
             {
                 return NotFound();

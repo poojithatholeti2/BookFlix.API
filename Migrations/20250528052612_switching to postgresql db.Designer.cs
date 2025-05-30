@@ -3,17 +3,17 @@ using System;
 using BookFlix.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace BookFlix.API.Migrations
 {
     [DbContext(typeof(BookFlixDbContext))]
-    [Migration("20250203131757_Seed data into Categories and Regions")]
-    partial class SeeddataintoCategoriesandRegions
+    [Migration("20250528052612_switching to postgresql db")]
+    partial class switchingtopostgresqldb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,37 +21,44 @@ namespace BookFlix.API.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.1")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("BookFlix.API.Models.Domain.Book", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Author")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
-                    b.Property<Guid>("Category")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Price")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    b.Property<Guid>("Rating")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<Guid>("RatingId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("RatingId");
+
+                    b.HasIndex("Title", "Author", "Price")
+                        .IsUnique();
 
                     b.ToTable("Books");
                 });
@@ -60,11 +67,11 @@ namespace BookFlix.API.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -98,14 +105,44 @@ namespace BookFlix.API.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BookFlix.API.Models.Domain.Image", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FileDescription")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileExtension")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("FileSizeInBytes")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Images");
+                });
+
             modelBuilder.Entity("BookFlix.API.Models.Domain.Rating", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("RatingValue")
-                        .HasColumnType("int");
+                    b.Property<string>("RatingName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -115,28 +152,37 @@ namespace BookFlix.API.Migrations
                         new
                         {
                             Id = new Guid("a3c7d69e-0c07-47db-a0fe-f7eb6160f568"),
-                            RatingValue = 1
+                            RatingName = "Good"
                         },
                         new
                         {
                             Id = new Guid("4bb3890e-2acc-4ebe-9e5f-e0527b4b33cb"),
-                            RatingValue = 2
+                            RatingName = "Average"
                         },
                         new
                         {
                             Id = new Guid("91f9aee4-d7d3-4ea1-b4ba-e6c11c37efe3"),
-                            RatingValue = 3
-                        },
-                        new
-                        {
-                            Id = new Guid("7a500d61-2f35-423e-a1e1-e6b58f6c0253"),
-                            RatingValue = 4
-                        },
-                        new
-                        {
-                            Id = new Guid("1003b2e0-fbee-4a48-86c8-209917e9fa69"),
-                            RatingValue = 5
+                            RatingName = "Bad"
                         });
+                });
+
+            modelBuilder.Entity("BookFlix.API.Models.Domain.Book", b =>
+                {
+                    b.HasOne("BookFlix.API.Models.Domain.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookFlix.API.Models.Domain.Rating", "Rating")
+                        .WithMany()
+                        .HasForeignKey("RatingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Rating");
                 });
 #pragma warning restore 612, 618
         }

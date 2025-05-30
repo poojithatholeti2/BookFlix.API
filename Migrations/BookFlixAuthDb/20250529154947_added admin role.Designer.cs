@@ -4,6 +4,7 @@ using BookFlix.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookFlix.API.Migrations.BookFlixAuthDb
 {
     [DbContext(typeof(BookFlixAuthDbContext))]
-    partial class BookFlixAuthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250529154947_added admin role")]
+    partial class addedadminrole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -60,7 +60,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddDbContext<BookFlixDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("BookFlixConnectionString")));
+options.UseNpgsql(builder.Configuration.GetConnectionString("BookFlixConnectionString")));
 
 builder.Services.AddDbContext<BookFlixAuthDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("BookFlixAuthConnectionString")));
@@ -69,7 +69,6 @@ builder.Services.AddScoped<IRatingRepository, SQLRatingRepository>();
 builder.Services.AddScoped<ICategoryRepository, SQLCategoryRepository>();
 builder.Services.AddScoped<IBookRepository, SQLBookRepository>();
 builder.Services.AddScoped<ITokenRepository, SQLTokenRepository>();
-builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
@@ -116,12 +115,6 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Images")),
-    RequestPath = "/Images"
-});
 
 app.MapControllers();
 
