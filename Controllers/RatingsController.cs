@@ -20,6 +20,9 @@ namespace BookFlix.API.Controllers
         private readonly IRatingRepository ratingRepository;
         private readonly IMapper mapper;
 
+        //list of allowed parameters for getAll request
+        private readonly List<String> allowedParameters = new List<string> { "filterOn", "filterQuery", "sortBy", "isAscending", "pageNumber", "pageSize" };
+
         public RatingsController(BookFlixDbContext dbContext, IRatingRepository ratingRepository, IMapper mapper)
         {
             this.dbContext = dbContext;
@@ -33,6 +36,12 @@ namespace BookFlix.API.Controllers
         public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery,
             [FromQuery] string? sortBy, [FromQuery] bool isAscending = true, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
         {
+            // Check if any extra query parameters are passed
+            var extraParameters = HttpContext.Request.Query.Keys.Except(allowedParameters, StringComparer.OrdinalIgnoreCase).ToList();
+            if (extraParameters.Any())
+            {
+                return BadRequest($"Invalid query parameters: {string.Join(", ", extraParameters)}. Allowed parameters are: {string.Join(", ", allowedParameters)}");
+            }
 
             // Validate filterOn and sortBy parameters
             if (string.IsNullOrEmpty(filterOn) == false && !filterOn.Equals("RatingName", StringComparison.OrdinalIgnoreCase))
