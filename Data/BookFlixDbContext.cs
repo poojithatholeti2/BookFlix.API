@@ -1,4 +1,5 @@
-﻿using BookFlix.API.Models.Domain;
+﻿using Pgvector;
+using BookFlix.API.Models.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookFlix.API.Data
@@ -17,6 +18,16 @@ namespace BookFlix.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.HasPostgresExtension("vector");
+
+            modelBuilder.Entity<Book>()
+                .Property(b => b.Embedding)
+                .HasColumnType("vector(384)")
+                .HasConversion(
+                    v => v, //store
+                    v => new Vector(v.ToArray()) //retrieve
+                );
 
             //including indexing (hashing) to remove Book triplet duplicates
             modelBuilder.Entity<Book>()

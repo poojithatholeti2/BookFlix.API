@@ -10,6 +10,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Pgvector;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,7 +61,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddDbContext<BookFlixDbContext>(options =>
-options.UseNpgsql(builder.Configuration.GetConnectionString("BookFlixConnectionString")));
+options.UseNpgsql(builder.Configuration.GetConnectionString("BookFlixConnectionString"), o => o.UseVector()));
 
 builder.Services.AddDbContext<BookFlixAuthDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("BookFlixAuthConnectionString")));
