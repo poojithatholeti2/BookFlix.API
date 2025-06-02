@@ -4,7 +4,8 @@ using BookFlix.API.CustomActionFiler;
 using BookFlix.API.Data;
 using BookFlix.API.Models.Domain;
 using BookFlix.API.Models.DTO;
-using BookFlix.API.Repositories;
+using BookFlix.API.Repositories.Interfaces;
+using BookFlix.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ namespace BookFlix.API.Controllers
     public class BooksController : ControllerBase
     {
         private readonly IMapper mapper;
+        private readonly IBookService bookService;
         private readonly IBookRepository bookRepository;
 
         //list of allowed parameters for getAll request
@@ -29,10 +31,11 @@ namespace BookFlix.API.Controllers
         private static readonly List<String> filterValidColumns = new List<String> { "Title", "Author" };
         private static readonly List<String> sortValidColumns = new List<String> { "Title", "Author", "Price" };
 
-        public BooksController(IMapper mapper, IBookRepository bookRepository)
+        public BooksController(IMapper mapper, IBookRepository bookRepository, IBookService bookService)
         {
             this.mapper = mapper;
             this.bookRepository = bookRepository;
+            this.bookService = bookService;
         }
 
         //create
@@ -45,7 +48,7 @@ namespace BookFlix.API.Controllers
             var bookDomainModel = mapper.Map<Book>(createBookDto);
 
             //controller calling repository for create action on db
-            var result = await bookRepository.CreateAsync(bookDomainModel);
+            var result = await bookService.CreateAsync(bookDomainModel);
             if (result == null) return BadRequest("Book creation failed! Please re-check.");
 
             //return dto after mapping domain model back to dto
@@ -62,7 +65,7 @@ namespace BookFlix.API.Controllers
             var booksDomainModel = mapper.Map<List<Book>>(createMultipleBooksDto);
 
             //controller calling repository
-            var result  = await bookRepository.CreateMultipleAsync(booksDomainModel);
+            var result  = await bookService.CreateMultipleAsync(booksDomainModel);
             if (result == null) return BadRequest("Books creation failed! Please re-check.");
 
             //return dto after mapping domain model back to dto

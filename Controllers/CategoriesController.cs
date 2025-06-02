@@ -4,7 +4,7 @@ using BookFlix.API.CustomActionFiler;
 using BookFlix.API.Data;
 using BookFlix.API.Models.Domain;
 using BookFlix.API.Models.DTO;
-using BookFlix.API.Repositories;
+using BookFlix.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

@@ -1,5 +1,6 @@
 ﻿using BookFlix.API.Data;
 using BookFlix.API.Models.Domain;
+using BookFlix.API.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookFlix.API.Repositories

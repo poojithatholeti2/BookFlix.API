@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace BookFlix.API.Repositories
+namespace BookFlix.API.Repositories.Interfaces
 {
     public interface ITokenRepository
     {

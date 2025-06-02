@@ -11,6 +11,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Pgvector;
+using BookFlix.API.Repositories.Interfaces;
+using BookFlix.API.Services.Interfaces;
+using BookFlix.API.Services;
+using Python.Runtime;
+using BookFlix.API;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,12 +65,24 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+//singleton services
+//Register the background queue interface
+builder.Services.AddSingleton<EmbeddingQueue>();
+builder.Services.AddSingleton<IEmbeddingQueue>(sp => sp.GetRequiredService<EmbeddingQueue>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<EmbeddingQueue>());
+
+//Scoped and short-lived, new instance of dbContext is created for each http request
 builder.Services.AddDbContext<BookFlixDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("BookFlixConnectionString"), o => o.UseVector()));
 
 builder.Services.AddDbContext<BookFlixAuthDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("BookFlixAuthConnectionString")));
 
+//service layer
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IEmbeddingService, PythonEmbeddingService>();
+
+//repository layer
 builder.Services.AddScoped<IRatingRepository, SQLRatingRepository>();
 builder.Services.AddScoped<ICategoryRepository, SQLCategoryRepository>();
 builder.Services.AddScoped<IBookRepository, SQLBookRepository>();
@@ -103,7 +120,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -118,5 +135,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+Runtime.PythonDLL = "C:\\Users\\POOJITHA\\AppData\\Local\\Programs\\Python\\Python313\\python313.dll";
+var pythonInstance = PythonEngineSingleton.Instance;
+
+app.Lifetime.ApplicationStopping.Register(() =>
+{
+    pythonInstance.Shutdown();
+});
 
 app.Run();

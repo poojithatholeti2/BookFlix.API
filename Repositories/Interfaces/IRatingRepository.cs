@@ -1,6 +1,6 @@
 ﻿using BookFlix.API.Models.Domain;
 
-namespace BookFlix.API.Repositories
+namespace BookFlix.API.Repositories.Interfaces
 {
     public interface IRatingRepository
     {

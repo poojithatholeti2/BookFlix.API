@@ -1,5 +1,5 @@
 ﻿using BookFlix.API.Models.DTO;
-using BookFlix.API.Repositories;
+using BookFlix.API.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
