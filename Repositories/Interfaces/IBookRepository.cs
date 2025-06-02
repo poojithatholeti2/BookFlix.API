@@ -1,7 +1,8 @@
 ﻿using BookFlix.API.Models.Domain;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Pgvector;
 
-namespace BookFlix.API.Repositories
+namespace BookFlix.API.Repositories.Interfaces
 {
     public interface IBookRepository
     {
@@ -12,5 +13,6 @@ namespace BookFlix.API.Repositories
         Task<Book?> GetByIdAsync(Guid id);
         Task<Book?> UpdateAsync(Guid id, Book book);
         Task<Book?> DeleteAsync(Guid id);
+        Task SaveEmbeddingAsync(Guid id, Vector embedding);
     }
 }

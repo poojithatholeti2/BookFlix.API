@@ -10,10 +10,6 @@ namespace BookFlix.API.Models.DTO
         public String Author { get; set; }
         public int Price { get; set; }
 
-        //public Guid CategoryId { get; set; }
-        //public Guid RatingId { get; set; }
-
-
         //navigation properties
         public CategoryDto Category { get; set; }
         public RatingDto Rating { get; set; }

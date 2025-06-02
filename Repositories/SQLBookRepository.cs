@@ -1,6 +1,8 @@
 ﻿using BookFlix.API.Data;
 using BookFlix.API.Models.Domain;
+using BookFlix.API.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Pgvector;
 
 namespace BookFlix.API.Repositories
 {
@@ -100,7 +102,7 @@ namespace BookFlix.API.Repositories
         //update
         public async Task<Book?> UpdateAsync(Guid id, Book book)
         {
-            var bookDomainModel = await dbContext.Books.FirstOrDefaultAsync(x => x.Id == id);
+            var bookDomainModel = await dbContext.Books.FirstOrDefaultAsync(b => b.Id == id);
 
             if (bookDomainModel == null)
             {
@@ -135,6 +137,18 @@ namespace BookFlix.API.Repositories
             await dbContext.SaveChangesAsync();
 
             return bookDomainModel;
+        }
+
+        //save embedding into db
+        public async Task SaveEmbeddingAsync(Guid id, Vector embedding)
+        {
+            var book = await dbContext.Books.FindAsync(id);
+
+            if(book==null) 
+                throw new KeyNotFoundException($"Book not found for Id: {id}");
+            
+            book.Embedding = embedding;
+            await dbContext.SaveChangesAsync();
         }
     }
 }
