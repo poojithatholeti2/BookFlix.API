@@ -87,7 +87,7 @@ builder.Services.AddScoped<ILLMService, GroqLLMService>();
 
 // Register Groq API client with injected API key
 builder.Services.AddScoped<GroqApiClient>(sp =>
-    new GroqApiClient("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"));
+    new GroqApiClient("groq_api_key"));
 
 //repository layer
 builder.Services.AddScoped<IRatingRepository, SQLRatingRepository>();
