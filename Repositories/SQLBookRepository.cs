@@ -150,5 +150,19 @@ namespace BookFlix.API.Repositories
             book.Embedding = embedding;
             await dbContext.SaveChangesAsync();
         }
+
+        //fetching books that fall into the closest range for the given inputVector(prompt)
+        public async Task<List<Book>?> GetSimilarBooksAsync(Vector inputVector)
+        {
+            var topBooks = await dbContext.Books
+                        .FromSqlRaw(@"
+                            SELECT * FROM ""Books""
+                            WHERE ""Embedding"" <=> {0} < 0.6 -- Distance threshold
+                            ORDER BY ""Embedding"" <=> {0}
+                            LIMIT 5", inputVector)
+                        .Include("Category").Include("Rating").ToListAsync();
+
+            return topBooks;
+        }
     }
 }

@@ -23,6 +23,7 @@ namespace BookFlix.API.Controllers
         private readonly IMapper mapper;
         private readonly IBookService bookService;
         private readonly IBookRepository bookRepository;
+        private readonly IRecommendationService recommendationService;
 
         //list of allowed parameters for getAll request
         private readonly List<String> allowedParameters = new List<string> { "filterOn", "filterQuery", "sortBy", "isAscending", "pageNumber", "pageSize" };
@@ -31,11 +32,12 @@ namespace BookFlix.API.Controllers
         private static readonly List<String> filterValidColumns = new List<String> { "Title", "Author" };
         private static readonly List<String> sortValidColumns = new List<String> { "Title", "Author", "Price" };
 
-        public BooksController(IMapper mapper, IBookRepository bookRepository, IBookService bookService)
+        public BooksController(IMapper mapper, IBookRepository bookRepository, IBookService bookService, IRecommendationService recommendationService)
         {
             this.mapper = mapper;
             this.bookRepository = bookRepository;
             this.bookService = bookService;
+            this.recommendationService = recommendationService;
         }
 
         //create
@@ -163,6 +165,15 @@ namespace BookFlix.API.Controllers
 
             //return dto
             return Ok(mapper.Map<BookDto>(bookDomainModel));
+        }
+
+        //recommendations
+        [HttpPost("recommend")]
+        [Authorize(Roles = "Reader, Writer, Admin")]
+        public async Task<IActionResult> GetRecommendation([FromBody] RecommendationQueryDto queryDTO)
+        {
+            var recommendedBooks = await recommendationService.GetRecommendationAsync(queryDTO.Query);
+            return Ok(recommendedBooks);
         }
     }
 }
