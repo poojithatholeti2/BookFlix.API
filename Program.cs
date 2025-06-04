@@ -1,21 +1,22 @@
 using System.Text;
+using BookFlix.API;
 using BookFlix.API.Data;
 using BookFlix.API.Mappings;
 using BookFlix.API.Middlewares;
 using BookFlix.API.Repositories;
+using BookFlix.API.Repositories.Interfaces;
+using BookFlix.API.Services;
+using BookFlix.API.Services.Interfaces;
+using GroqApiLibrary;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Serilog;
 using Pgvector;
-using BookFlix.API.Repositories.Interfaces;
-using BookFlix.API.Services.Interfaces;
-using BookFlix.API.Services;
 using Python.Runtime;
-using BookFlix.API;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,6 +82,12 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("BookFlixAuthConn
 //service layer
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IEmbeddingService, PythonEmbeddingService>();
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+builder.Services.AddScoped<ILLMService, GroqLLMService>();
+
+// Register Groq API client with injected API key
+builder.Services.AddScoped<GroqApiClient>(sp =>
+    new GroqApiClient("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"));
 
 //repository layer
 builder.Services.AddScoped<IRatingRepository, SQLRatingRepository>();
