@@ -21,7 +21,7 @@ namespace BookFlix.API
             _ = RunWithGIL(() =>
                 {
                     dynamic sys = Py.Import("sys");
-                    sys.path.append("D:\\my ASP.NET project\\bookflix\\BookFlix\\BookFlix.API\\Python\\");
+                    sys.path.append(Environment.GetEnvironmentVariable("PythonScriptsFolder"));
                     dynamic embeddingModule = Py.Import("embedding_service");
                     return embeddingModule.get_embedding("warmup"); //dummy call
                 });

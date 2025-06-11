@@ -7,6 +7,7 @@ using BookFlix.API.Repositories;
 using BookFlix.API.Repositories.Interfaces;
 using BookFlix.API.Services;
 using BookFlix.API.Services.Interfaces;
+using DotNetEnv;
 using GroqApiLibrary;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -19,6 +20,9 @@ using Python.Runtime;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load environment variables from .env file
+Env.Load();
 
 //add logging functionality (implementing both writeTo console and writeTo txt file)
 var logger = new LoggerConfiguration()
@@ -74,10 +78,10 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<EmbeddingQueue>())
 
 //Scoped and short-lived, new instance of dbContext is created for each http request
 builder.Services.AddDbContext<BookFlixDbContext>(options =>
-options.UseNpgsql(builder.Configuration.GetConnectionString("BookFlixConnectionString"), o => o.UseVector()));
+options.UseNpgsql(Environment.GetEnvironmentVariable("BookFlixConnectionString"), o => o.UseVector()));
 
 builder.Services.AddDbContext<BookFlixAuthDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("BookFlixAuthConnectionString")));
+options.UseSqlServer(Environment.GetEnvironmentVariable("BookFlixAuthConnectionString")));
 
 //service layer
 builder.Services.AddScoped<IBookService, BookService>();
@@ -87,7 +91,7 @@ builder.Services.AddScoped<ILLMService, GroqLLMService>();
 
 // Register Groq API client with injected API key
 builder.Services.AddScoped<GroqApiClient>(sp =>
-    new GroqApiClient("groq_api_key"));
+    new GroqApiClient(Environment.GetEnvironmentVariable("GroqApiKey")));
 
 //repository layer
 builder.Services.AddScoped<IRatingRepository, SQLRatingRepository>();
@@ -120,9 +124,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        ValidIssuer = Environment.GetEnvironmentVariable("JWT_Issuer"),
+        ValidAudience = Environment.GetEnvironmentVariable("Jwt_Audience"),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("Jwt_Key")))
     });
 
 var app = builder.Build();
@@ -143,7 +147,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-Runtime.PythonDLL = "C:\\Users\\POOJITHA\\AppData\\Local\\Programs\\Python\\Python313\\python313.dll";
+Runtime.PythonDLL = Environment.GetEnvironmentVariable("PythonDLLPath");
 var pythonInstance = PythonEngineSingleton.Instance;
 
 app.Lifetime.ApplicationStopping.Register(() =>

@@ -46,7 +46,7 @@ namespace BookFlix.API.Services
 
             //Get LLM recommendation result (comma-separated string of GUIDs)
             var systemPrompt = """
-                Imagine you are a book recommender which recommends AT MOST 2 books based on user query, among 5 books given to you in a JSON format (input Books).
+                Imagine you are a book recommender which recommends AT MOST 2 books only based on user query, among 5 books given to you in a JSON format (input Books).
 
                 Your task:
                 - User query is given in user section and you have to select books according to this query.
@@ -54,6 +54,9 @@ namespace BookFlix.API.Services
                 - You must not combine guids and only return the Guids that are provided in the input Books.
                 - Output must be a comma separated string of Guids with no space in between and with at most 2 book ids. No text before or after.
                 - If no valid books are found or recommended based on the input books or query, return an empty string.
+                - Emphasize more on the CategoryName. Only if the CategoryName is similar to the query, then recommend that book.
+                - If you are not confident enough that any of the available books don't cover all the requirements from the user query, then don't recommend anything. 
+                - Give me a total of 2 books only that fit best for the user query.
 
                 Do NOT include any explanations or additional formatting. Return only the comma separated string of Guids.
                 """;
@@ -85,7 +88,7 @@ namespace BookFlix.API.Services
             }
 
             var message = (recommendedBooks.Count() == 0) 
-                ? "Sorry, we currently cannot recommend any Book for your query. Please make sure that the query is related to Book recommendation."
+                ? "Sorry, we currently cannot recommend any Book for your query. Please make sure that the query is related to Book recommendation and try to be specific."
                 : "Here are the recommended Books based on your query among our available Books.";
 
             return new RecommendationsDto

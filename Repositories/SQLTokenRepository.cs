@@ -29,15 +29,15 @@ namespace BookFlix.API.Repositories
             }
 
             //get key
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_Key")));
 
             //generate credentials using the key
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             //generate token using claims, credentials
             var token = new JwtSecurityToken(
-                configuration["JWT:Issuer"],
-                configuration["JWT:Audience"],
+                Environment.GetEnvironmentVariable("JWT_Issuer"),
+                Environment.GetEnvironmentVariable("JWT_Audience"),
                 claims,
                 expires: DateTime.Now.AddDays(1),
                 signingCredentials: credentials);
