@@ -7,7 +7,7 @@ namespace BookFlix.API.Services
     public class GroqLLMService : ILLMService
     {
         private readonly GroqApiClient _groqApiClient;
-        private readonly string _llmModel = "llama-3.1-8b-instant";
+        private readonly string _llmModel = Environment.GetEnvironmentVariable("GroqLLMModel");
         public GroqLLMService(GroqApiClient groqApiClient)
         {
             _groqApiClient = groqApiClient;
@@ -17,7 +17,7 @@ namespace BookFlix.API.Services
             var request = new JsonObject
             {
                 ["model"] = _llmModel,
-                ["temperature"] = 0.7,
+                ["temperature"] = 0.2,
                 ["max_tokens"] = 150,
                 ["messages"] = new JsonArray
                 {

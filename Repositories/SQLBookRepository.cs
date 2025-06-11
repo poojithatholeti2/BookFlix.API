@@ -157,7 +157,7 @@ namespace BookFlix.API.Repositories
             var topBooks = await dbContext.Books
                         .FromSqlRaw(@"
                             SELECT * FROM ""Books""
-                            WHERE ""Embedding"" <=> {0} < 0.6 -- Distance threshold
+                            WHERE ""Embedding"" <=> {0} < 0.7 -- Distance threshold
                             ORDER BY ""Embedding"" <=> {0}
                             LIMIT 5", inputVector)
                         .Include("Category").Include("Rating").ToListAsync();
