@@ -17,8 +17,7 @@ namespace BookFlix.API.Services
             var request = new JsonObject
             {
                 ["model"] = _llmModel,
-                ["temperature"] = 0.2,
-                ["max_tokens"] = 150,
+                ["temperature"] = 0,
                 ["messages"] = new JsonArray
                 {
                     new JsonObject

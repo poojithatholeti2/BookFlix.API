@@ -4,6 +4,6 @@ namespace BookFlix.API.Services.Interfaces
 {
     public interface IRecommendationService
     {
-        Task<RecommendationsDto> GetRecommendationAsync(string query);
+        Task<RecommendationsDto> GetRecommendationAsync(RecommendationQueryDto queryDTO);
     }
 }

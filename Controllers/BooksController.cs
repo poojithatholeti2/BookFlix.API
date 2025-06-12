@@ -172,7 +172,7 @@ namespace BookFlix.API.Controllers
         [Authorize(Roles = "Reader, Writer, Admin")]
         public async Task<IActionResult> GetRecommendation([FromBody] RecommendationQueryDto queryDTO)
         {
-            var recommendedBooks = await recommendationService.GetRecommendationAsync(queryDTO.Query);
+            var recommendedBooks = await recommendationService.GetRecommendationAsync(queryDTO);
             return Ok(recommendedBooks);
         }
     }
