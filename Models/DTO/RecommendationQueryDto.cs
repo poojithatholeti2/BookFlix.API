@@ -6,5 +6,7 @@ namespace BookFlix.API.Models.DTO
     {
         [MinLength(24)]
         public string Query { get; set; }
+
+        public bool IsExplanationNeeded { get; set; }
     }
 }

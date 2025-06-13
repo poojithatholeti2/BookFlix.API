@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using AutoMapper;
 using BookFlix.API.Models.DTO;
 using BookFlix.API.Repositories.Interfaces;
@@ -20,12 +22,12 @@ namespace BookFlix.API.Services
             _mapper = mapper;
         }
 
-        public async Task<RecommendationsDto> GetRecommendationAsync(string query)
+        public async Task<RecommendationsDto> GetRecommendationAsync(RecommendationQueryDto queryDTO)
         {
-            //get embedding for the given query
-            var embeddingVector = await _embeddingService.GetEmbeddingAsync(query);
+            //Embedding for the given query
+            var embeddingVector = await _embeddingService.GetEmbeddingAsync(queryDTO.Query);
 
-            //get similar books from our db for the provided query
+            //Get similar books from our db for the provided query
             var similarBooks = await _bookRepository.GetSimilarBooksAsync(embeddingVector);
 
             var compactBooks = new List<CompactBookDto>();
@@ -35,6 +37,7 @@ namespace BookFlix.API.Services
                 {
                     Id = book.Id,
                     Title = book.Title,
+                    Description = book.Description,
                     Author = book.Author,
                     Price = book.Price,
                     CategoryName = book.Category.Title
@@ -57,14 +60,46 @@ namespace BookFlix.API.Services
                 - Emphasize more on the CategoryName. Only if the CategoryName is similar to the query, then recommend that book.
                 - If you are not confident enough that any of the available books don't cover all the requirements from the user query, then don't recommend anything. 
                 - Give me a total of 2 books only that fit best for the user query.
+                - If the user query mentions about the price of the book, it is ok to return books within the nearest price range.
 
-                Do NOT include any explanations or additional formatting. Return only the comma separated string of Guids.
+                 Final Checks:
+                - Make sure the data you return in the <think> tag is as if you are a Book recommendation expert talking to the user directly.
+                - Also check whether the guids you return are exactly as in the available book guids.
+
+                DO NOT return any explanation, only return comma seperated guids.
                 """;
 
-            var llmResult = await _llmService.GenerateRecommendationAsync(systemPrompt, query, availableBooksJson);
+            var llmResult = await _llmService.GenerateRecommendationAsync(systemPrompt, queryDTO.Query, availableBooksJson);
+
+            // Process the LLM output
+            // 1. Extract <think>...</think> data (if present)
+            var thinkStart = "<think>";
+            var thinkEnd = "</think>";
+            var thinkStartIndex = llmResult.IndexOf(thinkStart, StringComparison.OrdinalIgnoreCase);
+            var thinkEndIndex = llmResult.IndexOf(thinkEnd, StringComparison.OrdinalIgnoreCase);
+
+            string? think = null;
+            string? content = null;
+
+            if (thinkStartIndex != -1 && thinkEndIndex != -1 && thinkEndIndex > thinkStartIndex)
+            {
+                int contentStart = thinkStartIndex + thinkStart.Length;
+                think = llmResult.Substring(contentStart, thinkEndIndex - contentStart).Trim();
+
+                content = llmResult.Substring(thinkEndIndex + thinkEnd.Length);
+            }
+            else
+            {
+                content = llmResult.Trim();
+            }
+
+            if (string.IsNullOrWhiteSpace(think) || string.IsNullOrWhiteSpace(content))
+            {
+                throw new Exception("LLM response is not in the expected format.");
+            }
 
             // Parse the comma-separated string of GUIDs
-            var resultRecommendation = llmResult
+            var resultRecommendation = content
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(guidStr => Guid.TryParse(guidStr, out var guid) ? guid : (Guid?)null)
                 .Where(guid => guid.HasValue)
@@ -94,7 +129,8 @@ namespace BookFlix.API.Services
             return new RecommendationsDto
             {
                 Message = message,
-                Books = recommendedBooks
+                Books = recommendedBooks,
+                Explanation = (queryDTO.IsExplanationNeeded) ? think : null
             };
         }
     }
