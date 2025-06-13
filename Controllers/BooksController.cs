@@ -26,11 +26,26 @@ namespace BookFlix.API.Controllers
         private readonly IRecommendationService recommendationService;
 
         //list of allowed parameters for getAll request
-        private readonly List<String> allowedParameters = new List<string> { "filterOn", "filterQuery", "sortBy", "isAscending", "pageNumber", "pageSize" };
+        private readonly List<String> allowedParameters = new List<string> { 
+            "filterOn", 
+            "filterQuery", 
+            "sortBy", 
+            "isAscending", 
+            "pageNumber", 
+            "pageSize" 
+        };
 
         // Define valid columns for filtering and sorting
-        private static readonly List<String> filterValidColumns = new List<String> { "Title", "Author" };
-        private static readonly List<String> sortValidColumns = new List<String> { "Title", "Author", "Price" };
+        private static readonly List<String> filterValidColumns = new List<String> { 
+            "Title", 
+            "Author" 
+        };
+
+        private static readonly List<String> sortValidColumns = new List<String> { 
+            "Title", 
+            "Author", 
+            "Price" 
+        };
 
         public BooksController(IMapper mapper, IBookRepository bookRepository, IBookService bookService, IRecommendationService recommendationService)
         {
@@ -51,10 +66,14 @@ namespace BookFlix.API.Controllers
 
             //controller calling repository for create action on db
             var result = await bookService.CreateAsync(bookDomainModel);
-            if (result == null) return BadRequest("Book creation failed! Please re-check.");
+            if (result == null)
+            {
+                return BadRequest("Book creation failed, the given book already exists.");
+            }
 
-            //return dto after mapping domain model back to dto
-            return Ok(mapper.Map<BookDto>(result));
+            // Return the created book
+            var createdBookDto = mapper.Map<BookDto>(result);
+            return CreatedAtAction(nameof(GetById), new { id = createdBookDto.Id }, createdBookDto);
         }
 
         //create multiple
@@ -63,12 +82,30 @@ namespace BookFlix.API.Controllers
         [Authorize(Roles = "Writer, Admin")]
         public async Task<IActionResult> CreateMultiple([FromBody] List<CreateBookDto> createMultipleBooksDto)
         {
+
+            if (createMultipleBooksDto == null || !createMultipleBooksDto.Any())
+            {
+                return BadRequest("Books list cannot be empty.");
+            }
+
+            var count = createMultipleBooksDto.Count();
+
+            if (count > 200)
+            {
+                return BadRequest($"Books creation count exceeded (got {count})! Atmost 200 books are allowed at once.");
+            }
+
             //mapping dto to domain model
             var booksDomainModel = mapper.Map<List<Book>>(createMultipleBooksDto);
 
             //controller calling repository
             var result  = await bookService.CreateMultipleAsync(booksDomainModel);
-            if (result == null) return BadRequest("Books creation failed! Please re-check.");
+            var resultCount = result.Count();
+
+            if (resultCount != createMultipleBooksDto.Count())
+            {
+                return BadRequest($"Books creation failed at Book: {createMultipleBooksDto[resultCount].Title}, the given book already exists.");
+            }
 
             //return dto after mapping domain model back to dto
             return Ok(mapper.Map<List<BookDto>>(result));
@@ -135,18 +172,19 @@ namespace BookFlix.API.Controllers
         {
             
             //mapping update book dto to book domain model
-            var bookDomainModel = mapper.Map<Book>(updateBookDto);
+            var updatedBook = mapper.Map<Book>(updateBookDto);
 
             //controller calling repository for update action 
-            bookDomainModel = await bookRepository.UpdateAsync(id, bookDomainModel);
+            var book = await bookService.UpdateAsync(id, updatedBook);
 
-            if (bookDomainModel == null)
+            if (book == null)
             {
-                return BadRequest();
+                return BadRequest("Book creation failed, the given book already exists");
             }
 
-            //return dto
-            return Ok(mapper.Map<BookDto>(bookDomainModel));
+            //return updated book bto
+            var updatedBookdto = mapper.Map<BookDto>(book);
+            return Ok(updatedBookdto);
         }
 
         //delete

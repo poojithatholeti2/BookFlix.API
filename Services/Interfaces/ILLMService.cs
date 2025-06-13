@@ -4,6 +4,6 @@ namespace BookFlix.API.Services.Interfaces
 {
     public interface ILLMService
     {
-        Task<string> GenerateRecommendationAsync(string systemPrompt, string query, string availableProducts);
+        Task<string> GenerateRecommendationAsync(string systemPrompt, string query, string availableBooks);
     }
 }

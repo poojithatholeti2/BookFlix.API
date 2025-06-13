@@ -18,26 +18,21 @@ namespace BookFlix.API.Repositories
         //create
         public async Task<Book?> CreateAsync(Book book)
         {
+            bool exists = await dbContext.Books
+                .AnyAsync(b => b.Title == book.Title
+                            && b.Author == book.Author
+                            && b.Price == book.Price);
+
+            if (exists)
+            {
+                return null;
+            }
             await dbContext.Books.AddAsync(book);
             await dbContext.SaveChangesAsync();
 
             var createdBook = await dbContext.Books.Include("Category").Include("Rating").FirstOrDefaultAsync(b => book.Id == b.Id);
 
             return createdBook==null ? null : createdBook;
-        }
-
-        //create multiple
-        public async Task<List<Book>?> CreateMultipleAsync(List<Book> books)
-        {
-            var createdBooks = new List<Book>();
-
-            foreach(var b in books)
-            {
-                var createdBook = await CreateAsync(b);
-                if (createdBook == null) return null;
-                createdBooks.Add(createdBook);
-            }
-            return createdBooks;
         }
 
         //get all
@@ -57,7 +52,7 @@ namespace BookFlix.API.Repositories
                 }
 
                 //filter by author
-                if (filterOn.Equals("Author", StringComparison.OrdinalIgnoreCase))
+                else if (filterOn.Equals("Author", StringComparison.OrdinalIgnoreCase))
                 {
                     books = books.Where(x => x.Author.Contains(filterQuery));
                 }
@@ -73,13 +68,13 @@ namespace BookFlix.API.Repositories
                 }
 
                 //sort by author
-                if (sortBy.Equals("Author", StringComparison.OrdinalIgnoreCase))
+                else if (sortBy.Equals("Author", StringComparison.OrdinalIgnoreCase))
                 {
                     books = isAscending ? books.OrderBy(x => x.Author) : books.OrderByDescending(x => x.Author);
                 }
 
                 //sort by price
-                if(sortBy.Equals("Price", StringComparison.OrdinalIgnoreCase))
+                else if(sortBy.Equals("Price", StringComparison.OrdinalIgnoreCase))
                 {
                     books = isAscending ? books.OrderBy(x => x.Price) : books.OrderByDescending(x => x.Price);
                 }
@@ -100,26 +95,30 @@ namespace BookFlix.API.Repositories
         }
 
         //update
-        public async Task<Book?> UpdateAsync(Guid id, Book book)
+        public async Task<Book?> UpdateAsync(Guid id, Book updatedbook)
         {
-            var bookDomainModel = await dbContext.Books.FirstOrDefaultAsync(b => b.Id == id);
+            var book = await dbContext.Books.FirstOrDefaultAsync(b => b.Id == id);
 
-            if (bookDomainModel == null)
+            bool exists = await dbContext.Books
+                .AnyAsync(b => b.Title == updatedbook.Title
+                            && b.Author == updatedbook.Author
+                            && b.Price == updatedbook.Price);
+
+            if (exists || book == null)
             {
                 return null;
             }
 
-            bookDomainModel.Title = book.Title;
-            bookDomainModel.Description = book.Description;
-            bookDomainModel.Author = book.Author;
-            bookDomainModel.Price = book.Price;
-            bookDomainModel.CategoryId = book.CategoryId;
-            bookDomainModel.RatingId = book.RatingId;
+            book.Title = updatedbook.Title;
+            book.Description = updatedbook.Description;
+            book.Author = updatedbook.Author;
+            book.Price = updatedbook.Price;
+            book.CategoryId = updatedbook.CategoryId;
+            book.RatingId = updatedbook.RatingId;
 
             await dbContext.SaveChangesAsync();
 
             var result = await GetByIdAsync(id);
-
             return result;
         }
 
@@ -157,7 +156,7 @@ namespace BookFlix.API.Repositories
             var topBooks = await dbContext.Books
                         .FromSqlRaw(@"
                             SELECT * FROM ""Books""
-                            WHERE ""Embedding"" <=> {0} < 0.7 -- Distance threshold
+                            WHERE ""Embedding"" <=> {0} < 0.7 -- Distance threshold, Low confidence rejection
                             ORDER BY ""Embedding"" <=> {0}
                             LIMIT 5", inputVector)
                         .Include("Category").Include("Rating").ToListAsync();
