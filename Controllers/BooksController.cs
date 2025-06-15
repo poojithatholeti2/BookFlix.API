@@ -26,7 +26,7 @@ namespace BookFlix.API.Controllers
         private readonly IRecommendationService recommendationService;
 
         //list of allowed parameters for getAll request
-        private readonly List<String> allowedParameters = new List<string> { 
+        private readonly List<string> allowedParameters = new List<string> { 
             "filterOn", 
             "filterQuery", 
             "sortBy", 
@@ -36,12 +36,12 @@ namespace BookFlix.API.Controllers
         };
 
         // Define valid columns for filtering and sorting
-        private static readonly List<String> filterValidColumns = new List<String> { 
+        private static readonly List<string> filterValidColumns = new List<string> { 
             "Title", 
             "Author" 
         };
 
-        private static readonly List<String> sortValidColumns = new List<String> { 
+        private static readonly List<string> sortValidColumns = new List<string> { 
             "Title", 
             "Author", 
             "Price" 

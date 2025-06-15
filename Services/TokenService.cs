@@ -1,21 +1,20 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using BookFlix.API.Repositories.Interfaces;
+using BookFlix.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-namespace BookFlix.API.Repositories
+namespace BookFlix.API.Services
 {
-    public class SQLTokenRepository : ITokenRepository
+    public class TokenService : ITokenService
     {
-        private readonly IConfiguration configuration;
+        private readonly IConfiguration _configuration;
 
-        public SQLTokenRepository(IConfiguration configuration)
+        public TokenService(IConfiguration configuration)
         {
-            this.configuration = configuration;
+            _configuration = configuration;
         }
-
 
         public string CreateJWTToken(IdentityUser user, List<string> roles)
         {

@@ -1,5 +1,5 @@
 ﻿using BookFlix.API.Models.DTO;
-using BookFlix.API.Repositories.Interfaces;
+using BookFlix.API.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +10,13 @@ namespace BookFlix.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly ITokenRepository tokenRepository;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly ITokenService _tokenService;
 
-        public AuthController(UserManager<IdentityUser> userManager, ITokenRepository tokenRepository)
+        public AuthController(UserManager<IdentityUser> userManager, ITokenService tokenService)
         {
-            this.userManager = userManager;
-            this.tokenRepository = tokenRepository;
+            this._userManager = userManager;
+            this._tokenService = tokenService;
         }
 
         //post: api/auth/register
@@ -30,13 +30,13 @@ namespace BookFlix.API.Controllers
                 Email = registerRequestDto.EmailAddress
             };
 
-            var identityResult = await userManager.CreateAsync(identityUser, registerRequestDto.Password);
+            var identityResult = await _userManager.CreateAsync(identityUser, registerRequestDto.Password);
             if (identityResult.Succeeded)
             {
                 //add roles to this user
                 if (registerRequestDto.Roles != null && registerRequestDto.Roles.Any())
                 {
-                    identityResult =  await userManager.AddToRolesAsync(identityUser, registerRequestDto.Roles);
+                    identityResult =  await _userManager.AddToRolesAsync(identityUser, registerRequestDto.Roles);
                     if (identityResult.Succeeded)
                     {
                         return Ok("User has been created successfully! Please login now.");
@@ -53,19 +53,19 @@ namespace BookFlix.API.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login(LoginRequestDto loginRequestDto)
         {
-            var user = await userManager.FindByEmailAsync(loginRequestDto.UserName);
+            var user = await _userManager.FindByEmailAsync(loginRequestDto.UserName);
 
             if (user!=null)
             {
-                var checkPasswordResult = await userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+                var checkPasswordResult = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
                 if(checkPasswordResult)
                 {
                     //fetch roles of the user
-                    var roles = await userManager.GetRolesAsync(user);
+                    var roles = await _userManager.GetRolesAsync(user);
                     if(roles!=null)
                     {
                         //create Token
-                        var jwtToken = tokenRepository.CreateJWTToken(user, roles.ToList());
+                        var jwtToken = _tokenService.CreateJWTToken(user, roles.ToList());
                         var response = new LoginResponseDto
                         {
                             JWTToken = jwtToken

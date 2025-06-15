@@ -7,15 +7,15 @@ namespace BookFlix.API.Models.DTO
         [Required]
         [MaxLength(50, ErrorMessage = "Max length is 50 characters")]
         [MinLength(3, ErrorMessage = "Min length is 3 characters")]
-        public String Title { get; set; }
+        public string Title { get; set; }
 
 
         [MaxLength(1000, ErrorMessage = "Max length of title is 1000 characters")]
-        public String? Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         [MaxLength(50, ErrorMessage = "Max length is 50 characters")]
-        public String Author { get; set; }
+        public string Author { get; set; }
 
         [Required]
         [Range(0, 100000)]

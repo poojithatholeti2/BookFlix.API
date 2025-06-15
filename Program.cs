@@ -97,7 +97,7 @@ builder.Services.AddScoped<GroqApiClient>(sp =>
 builder.Services.AddScoped<IRatingRepository, SQLRatingRepository>();
 builder.Services.AddScoped<ICategoryRepository, SQLCategoryRepository>();
 builder.Services.AddScoped<IBookRepository, SQLBookRepository>();
-builder.Services.AddScoped<ITokenRepository, SQLTokenRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 

@@ -21,7 +21,7 @@ namespace BookFlix.API.Controllers
         private readonly ILogger<CategoriesController> logger;
 
         //list of allowed parameters for getAll request
-        private readonly List<String> allowedParameters = new List<string> { "filterOn", "filterQuery", "sortBy", "isAscending", "pageNumber", "pageSize" };
+        private readonly List<string> allowedParameters = new List<string> { "filterOn", "filterQuery", "sortBy", "isAscending", "pageNumber", "pageSize" };
 
         public CategoriesController(BookFlixDbContext dbContext, ICategoryRepository categoryRepository, IMapper mapper, ILogger<CategoriesController> logger)
         {

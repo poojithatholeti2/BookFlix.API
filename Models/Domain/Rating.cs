@@ -3,6 +3,6 @@
     public class Rating
     {
         public Guid Id { get; set; }
-        public String RatingName { get; set; }    
+        public string RatingName { get; set; }    
     }
 }

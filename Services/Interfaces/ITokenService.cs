@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace BookFlix.API.Repositories.Interfaces
+namespace BookFlix.API.Services.Interfaces
 {
-    public interface ITokenRepository
+    public interface ITokenService
     {
         string CreateJWTToken(IdentityUser user, List<string> roles);
     }

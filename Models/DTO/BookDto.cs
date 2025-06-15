@@ -5,9 +5,9 @@ namespace BookFlix.API.Models.DTO
     public class BookDto
     {
         public Guid Id { get; set; }
-        public String Title { get; set; }
-        public String? Description { get; set; }
-        public String Author { get; set; }
+        public string Title { get; set; }
+        public string? Description { get; set; }
+        public string Author { get; set; }
         public int Price { get; set; }
 
         //navigation properties
