@@ -1,46 +1,129 @@
-<p>BookFlix is a scalable, AI-enhanced backend platform for intelligent book management and semantic recommendations integrated with Groq LLM — built with ASP.NET Core, PostgreSQL, pgvector. </p>
+# BookFlix — Intelligent Book Management & Recommendation API
+BookFlix is a scalable, AI-enhanced backend platform for intelligent book management and semantic recommendations integrated with Groq LLM — built with ASP.NET Core, PostgreSQL, pgvector. 
 
 ## Description
-<p>BookFlix is a modular, API-first backend platform built with ASP.NET Core Web API and Entity Framework Core, designed to manage books, categories, and ratings following scalable software design principles. It features robust JWT-based authentication with role-based authorization, clean service-repository separation, and scalable dependency injection, all structured within a maintainable and extensible architecture.  
 
-The project includes an intelligent, AI-driven recommendation engine powered by the Groq LLM API, coupled with advanced semantic similarity search using pgvector in PostgreSQL. A dedicated Python microservice asynchronously generates embeddings, decoupled via a queue-based pipeline to ensure optimal performance and modularity </p>
+**BookFlix** is a secure, modular, and scalable API-first backend platform built with **ASP.NET Core Web API** and **Entity Framework Core**. It manages books, categories, and ratings with advanced filtering, sorting, and pagination, following scalable software design principles. Featuring robust JWT-based authentication with role-based authorization, clean service-repository separation, and scalable dependency injection, all structured within a maintainable and extensible architecture.  
+
+The project includes intelligent, vector-based AI recommendations using pgvector, powered by the Groq LLM API, coupled with advanced semantic similarity search using pgvector in PostgreSQL. A dedicated Python microservice asynchronously generates embeddings, decoupled via a queue-based pipeline to ensure optimal performance and modularity.
+
+---
 
 ## Tech Stack
-<table>
-  <thead>
-    <tr>
-      <th>Component</th>
-      <th>Technology Used</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Backend Framework</td>
-      <td>C# ASP.NET Core Web API</td>
-    </tr>
-    <tr>
-      <td>Database</td>
-      <td>Entity Framework Core, PostgreSQL, SQL Server</td>
-    </tr>
-    <tr>
-      <td>Vector Similarity Search</td>
-      <td>pgvector (PostgreSQL extension)</td>
-    </tr>
-    <tr>
-      <td>AI Integration</td>
-      <td>Groq LLM API (for intelligent recommendation generation)</td>
-    </tr>
-    <tr>
-      <td>DTO Mapping</td>
-      <td>AutoMapper</td>
-    </tr>
-    <tr>
-      <td>Embedding Service</td>
-      <td>Python (optional) for embedding service</td>
-    </tr>
-  </tbody>
-</table>
 
-<hr style="border: 0; height: 1px; background: #e0e0e0; margin: 20px 0;" />
+| Component                  | Technology Used                                              |
+|---------------------------|--------------------------------------------------------------|
+| Backend Framework         | ASP.NET Core Web API                                         |
+| ORM & Databases           | Entity Framework Core, PostgreSQL, SQL Server               |
+| Vector Similarity Search  | pgvector (PostgreSQL extension)                             |
+| AI/LLM Integration        | Groq LLM API                                                 |
+| Authentication & Roles   | ASP.NET Identity, JWT                                        |
+| DTO Mapping               | AutoMapper                                                  |
+| Embedding Service         | Python (via pythonnet for embedding generation)             |
+| Logging & Monitoring      | Serilog                                                     |
 
+---
+
+## Endpoints Overview
+### Authentication Endpoints
+
+**Database used**: SQL Server 16.
+
+**Purpose**: Handles user identity management, registration, login, and JWT issuance for secure access.  
+
+| Method | Endpoint           | Description                        | Access         |
+|--------|--------------------|------------------------------------|----------------|
+| POST   | /api/auth/register | Register new user with roles       | Public         |
+| POST   | /api/auth/login    | Login and receive JWT token        | Public         |
+
+### Roles and Permissions Overview
+
+These define access levels for users to enforce role-based authorization across all API operations. 
+
+| Role    | Permissions                                 |
+|---------|---------------------------------------------|
+| Admin   | Full access to all endpoints                |
+| Writer  | Can manage books (create, update, delete)   |
+| Reader  | Can view books, categories, and ratings     |
+
+---
+
+## CRUD Operations Overview
+
+Below is a consolidated view of all major CRUD endpoints for authentication, books, categories, and ratings.
+
+These endpoints enable full Create, Read, Update, and Delete functionality with role-based access control for secure interactions.
+
+| Resource     | Action      | Method | Endpoint                          | Roles Allowed       |
+|--------------|-------------|--------|-----------------------------------|----------------------|
+| Auth         | Register     | POST   | /api/auth/register                | Public               |
+|              | Login        | POST   | /api/auth/login                   | Public               |
+| Books        | Create       | POST   | /api/books                        | Writer, Admin        |
+|              | Bulk Create  | POST   | /api/books/bulk                   | Writer, Admin        |
+|              | Read All     | GET    | /api/books                        | Reader, Writer, Admin|
+|              | Read by ID   | GET    | /api/books/{id}                   | Reader, Writer, Admin|
+|              | Update       | PUT    | /api/books/{id}                   | Writer, Admin        |
+|              | Delete       | DELETE | /api/books/{id}                   | Writer, Admin        |
+|              | Recommend    | POST   | /api/books/recommend              | Reader, Writer, Admin|
+| Categories   | Create       | POST   | /api/categories                   | Admin                |
+|              | Read All     | GET    | /api/categories                   | Reader, Writer, Admin|
+|              | Read by ID   | GET    | /api/categories/{id}              | Reader, Writer, Admin|
+|              | Update       | PUT    | /api/categories/{id}              | Admin                |
+|              | Delete       | DELETE | /api/categories/{id}              | Admin                |
+| Ratings      | Create       | POST   | /api/ratings                      | Admin                |
+|              | Read All     | GET    | /api/ratings                      | Reader, Writer, Admin|
+|              | Read by ID   | GET    | /api/ratings/{id}                 | Reader, Writer, Admin|
+|              | Update       | PUT    | /api/ratings/{id}                 | Admin                |
+|              | Delete       | DELETE | /api/ratings/{id}                 | Admin                |
+
+---
+
+## Embedding Service Architecture
+
+Embeddings are generated asynchronously via a Python-based microservice integrated into the .NET application.
+
+- When a book is created, its data is queued for embedding generation.
+- A hosted background service listens to this queue.
+- The Python service uses Groq's LLM to create vector embeddings.
+- These embeddings are stored in PostgreSQL via pgvector for future recommendations.
+
+This design ensures that the API remains highly responsive while handling AI workloads efficiently.
+
+---
+
+## AI-Powered Recommendation Engine
+
+BookFlix includes a powerful vector-based recommendation engine that utilizes semantic similarity and LLM-generated embeddings.
+
+- Groq LLM API generates context-aware embeddings from book titles and metadata.
+- pgvector is used for high-speed vector similarity search in PostgreSQL.
+- EmbeddingQueue handles asynchronous vector processing without blocking API operations.
+- A custom RecommendationService retrieves top-matching books based on semantic embeddings.
+
+This allows the system to deliver highly relevant book suggestions with minimal latency.
+
+---
+
+## Book Listing Features
+
+BookFlix provides dynamic data operations via filterable, sortable, and pageable endpoints.
+
+- Filtering: Filter books by Title or Author.
+- Sorting: Sort by Title, Author, or Price.
+- Pagination: Customize with pageNumber and pageSize.
+- Parameter Validation: Only specific query keys are allowed for safety and predictability.
+
+
+---
+
+## Performance and Scalability Highlights
+
+- Asynchronous Embedding Pipeline: Improves throughput and decouples AI logic from core APIs.
+- Modular Architecture: Follows clean coding practices with separation of controller, service, and repository layers.
+- Role-Based Access Control: Ensures only authorized users access specific actions.
+- Optimized DTO Usage: Reduces payload size and boosts performance with AutoMapper.
+- Logging with Serilog: Logs API activity to both console and persistent storage.
+- Scalable Storage: PostgreSQL and SQL Server integration support high data volume and fast access.
+
+---
 
