@@ -1,4 +1,12 @@
 # BookFlix — Intelligent Book Management & Recommendation API
+![.NETCore](https://img.shields.io/badge/.NETCore-8.0-blue)
+![EntityFramework](https://img.shields.io/badge/EntityFrameworkCore-8.0-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
+![pgVector](https://img.shields.io/badge/pgVector-enabled-success)
+![SQLServer](https://img.shields.io/badge/SQLServer-16-blue)
+![LLM-Powered](https://img.shields.io/badge/LLMAPI-Groq-red)
+![Python](https://img.shields.io/badge/Python-3-yellow)
+
 BookFlix is a scalable, AI-enhanced backend platform for intelligent book management and semantic recommendations integrated with Groq LLM — built with ASP.NET Core, PostgreSQL, pgvector. 
 
 ## Description
