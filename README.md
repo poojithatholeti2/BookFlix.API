@@ -127,3 +127,48 @@ BookFlix provides dynamic data operations via filterable, sortable, and pageable
 
 ---
 
+## QuickStart
+
+### Follow these steps to get BookFlix API up and running locally:
+
+### 1. Clone the Repository
+- git clone https://github.com/your-username/BookFlix.git
+- cd BookFlix
+### 2. Setup Environment Variables
+#### Create a .env file at the root of the project with the following keys:
+
+<details> <summary><strong>📄 .env Example</strong> (click to expand)</summary>
+
+#### #PostgreSQL for Book Catalog
+BookFlixConnectionString=Host=localhost;Port=5432;Database=BookFlixDb;Username=your_username;Password=your_password
+
+#### #SQL Server or PostgreSQL for Auth Database
+BookFlixAuthDbConnectionString=Server=localhost;Database=BookFlixAuthDb;Trusted_Connection=True;TrustServerCertificate=True
+
+#### #JWT Configuration
+JWT_Key=your_super_secret_key
+JWT_Issuer=https://localhost:7016/
+JWT_Audience=https://localhost:7016/
+
+#### #Python Embedding Service (if using pythonnet)
+PythonDLLPath=C:/Path/To/pythonXY.dll
+PythonScriptsFolder=C:/Path/To/BookFlix/Python
+
+#### #Groq AI Configuration
+GroqApiKey=your_groq_api_key
+GroqLLMModel=llama3-8b-instruct
+</details>
+
+## 3. Apply Migrations
+#### Navigate to the API project directory
+- cd BookFlix.API
+
+#### Apply migrations to both databases
+- dotnet ef database update --context BookFlixDbContext
+- dotnet ef database update --context BookFlixAuthDbContext
+
+## 4. Run the Project
+- dotnet run --project BookFlix.API
+
+## 5. Test with Swagger
+- Visit: https://localhost:1234/swagger
