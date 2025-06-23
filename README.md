@@ -134,11 +134,11 @@ Embeddings are generated asynchronously via a Python-based microservice integrat
 - When a client sends a `POST /api/books` request, the book data is passed from the controller to the service layer and saved into the database via the repository layer. A success response is returned immediately without waiting for embedding generation.
 
 ### 2. **Queueing for Embedding Generation:** 
-- After the book is successfully stored, the `BookService` enqueues the book data into a singleton `EmbeddingQueue`, allowing the embedding process to run asynchronously without blocking the API response.
+- After the book is successfully stored, the `IBookService` enqueues the book data into a singleton `IEmbeddingQueue`, allowing the embedding process to run asynchronously without blocking the API response.
 
 ### 3. **Asynchronous Background Execution:** 
-- A hosted background service continuously monitors the `EmbeddingQueue`. Once it detects new book data, it dequeues the request and invokes the embedding generation process.
-- The `PythonEmbeddingService` interacts with a Python module (`embedding_service.py`) via `PythonNet`. It passes the book's textual data (e.g., title and description) to a Groq-hosted LLM that returns a 384-dimensional semantic embedding vector.
+- A hosted background service continuously monitors the `IEmbeddingQueue`. Once it detects new book data, it dequeues the request and invokes the embedding generation process.
+- The `IEmbeddingService` interacts with a Python module (`embedding_service.py`) via `PythonNet`. It passes the book's textual data (e.g., title and description) to `IEmbeddingService` that returns a 384-dimensional semantic embedding vector.
 
 ### 4. **Validation and Embedding Storage:** 
 - The returned float array is validated to ensure it has 384 elements. If valid, it is wrapped into a `pgvector.Vector` object suitable for storage in PostgreSQL.
@@ -155,7 +155,7 @@ BookFlix delivers intelligent recommendations through a multi-step, AI-augmented
  `"Give a book that is related to finance or money."`
 
 ### 2. Semantic Query Embedding Generation
-- The query is sent to a Python-based microservice using `IEmbeddingService`, where Groq LLM converts it into a high-dimensional vector for semantic understanding.
+- The query is sent to a Python-based microservice using `IEmbeddingService`, where it is converted into a high-dimensional vector for semantic understanding.
 
 ### 3. Vector Similarity Search
 - The .NET backend uses `pgvector` with PostgreSQL to compare the query vector against stored book vectors, identifying semantically similar books using cosine similarity.
@@ -164,7 +164,7 @@ BookFlix delivers intelligent recommendations through a multi-step, AI-augmented
 - The system retrieves the top 5 most relevant books, emphasizing high confidence and discarding ambiguous results to improve recommendation quality.
 
 ### 5. LLM-Based Filtering and Optimization
-- The curated list of the top 5 semantically similar books is passed to Groq LLM, along with a structured system prompt and the original query.
+- The curated list of the top 5 semantically similar books is passed to `ILLMService`, along with a structured system prompt and the original query.
 - The LLM analyzes the context and returns:
   - At most 2 GUIDs (book IDs) that are most relevant.
   - A `<think>` block that explains the model's thought process.
@@ -180,7 +180,6 @@ The system uses strict rules in the prompt to ensure consistent output format an
 ### Example Query
 - **Request:** Recommend books related to entrepreneurship and personal finance, preferably under ₹500.  
 - **Response:** Returns two curated book recommendations that align with business and finance themes, filtered for affordability and category relevance using semantic search and LLM refinement.  
-
 
 ---
 
