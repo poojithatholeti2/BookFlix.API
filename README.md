@@ -105,6 +105,7 @@ BookFlix provides dynamic data operations via filterable, sortable, and pageable
 - **Sorting:** Sort by Title, Author, or Price.
 - **Pagination:** Customize with pageNumber and pageSize.
 - **Parameter Validation:** Only specific query keys are allowed for safety and predictability.
+- **Role-based access:** Access to Endpoints based on roles (Reader, Writer, Admin).
 
 ---
 
