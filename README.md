@@ -32,55 +32,70 @@ The project includes intelligent, vector-based AI recommendations using pgvector
 
 ---
 
-## Endpoints Overview
+## Access Control & Public API Endpoints
 ### Authentication Endpoints
 
-**Database used**: SQL Server 16.
-
+**Database used**: SQL Server 16  
 **Purpose**: Handles user identity management, registration, login, and JWT issuance for secure access.  
 
-| Method | Endpoint           | Description                        | Access         |
+| HTTP Method | Endpoint           | Description                        | Access         |
 |--------|--------------------|------------------------------------|----------------|
 | POST   | /api/auth/register | Register new user with roles       | Public         |
 | POST   | /api/auth/login    | Login and receive JWT token        | Public         |
 
 ### Roles and Permissions Overview
 
-These define access levels for users to enforce role-based authorization across all API operations. 
+These define access levels for users to enforce role-based authorization across all API operations.  
+**Available Roles**: Admin, Writer, Reader 
 
 | Role    | Permissions                                 |
 |---------|---------------------------------------------|
 | Admin   | Full access to all endpoints                |
-| Writer  | Can manage books (create, update, delete)   |
+| Writer  | Can manage all resources (create, update, delete)   |
 | Reader  | Can view books, categories, and ratings     |
+
+### Consumer Endpoints
+
+**Database Used**: PostgreSQL 17  
+**Purpose**: Handles client-facing CRUD operations across resources such as Books, Categories, and Ratings. Enforces strict role-based access control for secure API usage.  
+**Supported Roles (OverAll)**: Admin, Writer, Reader  
+
+| HTTP Method | Endpoint              | Roles Supported          |
+|-------------|------------------------|---------------------------|
+| POST        | /api/resource          | Admin, Writer             |
+| GET         | /api/resource/{id}     | Admin, Writer, Reader     |
+| GET         | /api/resource          | Admin, Writer, Reader     |
+| PUT         | /api/resource/{id}     | Admin, Writer             |
+| DELETE      | /api/resource/{id}     | Admin, Writer             |
 
 ---
 
-## CRUD Operations Overview
+## Comprehensive CRUD Endpoint Overview
 
 Below is a consolidated view of all major CRUD endpoints for authentication, books, categories, and ratings. These endpoints enable Create, Read, Update, and Delete (CRUD) functionality with role-based access control for secure interactions.
 
-| Resource     | Action      | Method | Endpoint                          | Roles Allowed       |
-|--------------|-------------|--------|-----------------------------------|----------------------|
-| Auth         | Register     | POST   | /api/auth/register                | Public               |
-|              | Login        | POST   | /api/auth/login                   | Public               |
-| Books        | Create       | POST   | /api/books                        | Writer, Admin        |
-|              | Bulk Create  | POST   | /api/books/bulk                   | Writer, Admin        |
-|              | Read All     | GET    | /api/books                        | Reader, Writer, Admin|
-|              | Read by ID   | GET    | /api/books/{id}                   | Reader, Writer, Admin|
-|              | Update       | PUT    | /api/books/{id}                   | Writer, Admin        |
-|              | Delete       | DELETE | /api/books/{id}                   | Writer, Admin        |
-|              | Recommend    | POST   | /api/books/recommend              | Reader, Writer, Admin|
-| Categories   | Create       | POST   | /api/categories                   | Admin                |
-|              | Read All     | GET    | /api/categories                   | Reader, Writer, Admin|
-|              | Read by ID   | GET    | /api/categories/{id}              | Reader, Writer, Admin|
-|              | Update       | PUT    | /api/categories/{id}              | Admin                |
-|              | Delete       | DELETE | /api/categories/{id}              | Admin                |
-| Ratings      | Create       | POST   | /api/ratings                      | Admin                |
-|              | Read All     | GET    | /api/ratings                      | Reader, Writer, Admin|
-|              | Read by ID   | GET    | /api/ratings/{id}                 | Reader, Writer, Admin|
-|              | Update       | PUT    | /api/ratings/{id}                 | Admin                |
-|              | Delete       | DELETE | /api/ratings/{id}                 | Admin                |
+| Resource     | Action        | HTTP Method | Endpoint                          | Roles Allowed         | Description                                              |
+|--------------|---------------|-------------|-----------------------------------|------------------------|----------------------------------------------------------|
+| **Auth**     | Register       | POST        | /api/auth/register                | Public                 | Register a new user with assigned role(s).              |
+|              | Login          | POST        | /api/auth/login                   | Public                 | Authenticate user and return a JWT token.               |
+| **Books**    | Create         | POST        | /api/books                        | Writer, Admin          | Add a new book to the catalog.                          |
+|              | Bulk Create    | POST        | /api/books/bulk                   | Writer, Admin          | Insert multiple books in a single request.              |
+|              | Read All       | GET         | /api/books                        | Reader, Writer, Admin  | Retrieve all available books with optional filters.     |
+|              | Read by ID     | GET         | /api/books/{id}                   | Reader, Writer, Admin  | Fetch a specific book by its unique ID.                 |
+|              | Update         | PUT         | /api/books/{id}                   | Writer, Admin          | Modify an existing book’s details.                      |
+|              | Delete         | DELETE      | /api/books/{id}                   | Writer, Admin          | Remove a book permanently from the database.            |
+|              | Recommend      | POST        | /api/books/recommend              | Reader, Writer, Admin  | Get AI-powered book recommendations.                    |
+| **Categories**| Create        | POST        | /api/categories                   | Admin                  | Add a new category for books.                           |
+|              | Read All       | GET         | /api/categories                   | Reader, Writer, Admin  | Retrieve a list of all categories.                      |
+|              | Read by ID     | GET         | /api/categories/{id}              | Reader, Writer, Admin  | Get details of a specific category by ID.               |
+|              | Update         | PUT         | /api/categories/{id}              | Admin                  | Update an existing category.                            |
+|              | Delete         | DELETE      | /api/categories/{id}              | Admin                  | Delete a category permanently.                          |
+| **Ratings**  | Create         | POST        | /api/ratings                      | Admin                  | Add a new book rating.                                  |
+|              | Read All       | GET         | /api/ratings                      | Reader, Writer, Admin  | Fetch all ratings across books.                         |
+|              | Read by ID     | GET         | /api/ratings/{id}                 | Reader, Writer, Admin  | View rating details by its ID.                          |
+|              | Update         | PUT         | /api/ratings/{id}                 | Admin                  | Modify a rating entry.                                  |
+|              | Delete         | DELETE      | /api/ratings/{id}                 | Admin                  | Remove a rating from the system.                        |
+
 
 ### Book Listing Features
 
