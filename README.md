@@ -38,7 +38,7 @@ The project includes intelligent, vector-based AI recommendations using pgvector
 
 ---
 
-## Access Control & Public API Endpoints
+## API Endpoints & Access Control
 ### Authentication Endpoints
 
 **Database used**: SQL Server 16  
