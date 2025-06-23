@@ -10,9 +10,9 @@
 BookFlix is a scalable, AI-enhanced backend platform for intelligent book management and semantic recommendations integrated with Groq LLM — built with ASP.NET Core, PostgreSQL, pgvector. 
 
 <p align="center">
-  <img src="./Assets/EmbeddingService_Image.jpg" width="25%" alt="Demo of BookFlix Book Creation followed by Embedding" />
-  <img src="./Assets/RecommendationService_Image.jpg" width="25%" alt="Demo of BookFlix Recommendation Flow" />
-  <div align="center"><p3>(Animated explanations below)</p3></div>
+  <img src="./Assets/EmbeddingService_Image.jpg" width="30%" alt="Demo of BookFlix Book Creation followed by Embedding" />
+  <img src="./Assets/RecommendationService_Image.jpg" width="37.3%" alt="Demo of BookFlix Recommendation Flow" />
+  <!-- <div align="center"><p3>(Animated explanations below)</p3></div> -->
 </p>
 
 ## Description
