@@ -107,6 +107,23 @@ BookFlix provides dynamic data operations via filterable, sortable, and pageable
 - **Parameter Validation:** Only specific query keys are allowed for safety and predictability.
 - **Role-based access:** Access to Endpoints based on roles (Reader, Writer, Admin).
 
+#### Example Request
+GET /api/books?filterOn=Title&filterQuery=finance&sortBy=Price&isAscending=true&pageNumber=1&pageSize=10
+
+
+#### Query Parameters
+
+| Parameter     | Type   | Description                                                                 |
+|---------------|--------|-----------------------------------------------------------------------------|
+| `filterOn`    | string | Column to apply filter on. Allowed values: `Title`, `Author`.               |
+| `filterQuery` | string | Value to match in the specified filter column.                              |
+| `sortBy`      | string | Column to sort by. Allowed values: `Title`, `Author`, `Price`.              |
+| `isAscending` | bool   | `true` for ascending order, `false` for descending.                         |
+| `pageNumber`  | int    | Page number to retrieve (starting from 1).                                  |
+| `pageSize`    | int    | Number of records per page (default: 1000, allows large datasets).          |
+
+> ⚠️ Only the above parameters are accepted. Any extra or invalid query keys will result in a `400 Bad Request` with a list of allowed parameters.
+
 ---
 
 ## Embedding Service Architecture
@@ -160,44 +177,34 @@ The system uses strict rules in the prompt to ensure consistent output format an
   - The recommended books
   - Optional reasoning/explanation from the LLM (if `IsExplanationNeeded` is provided as `true` by the user)
 
+### Example Query
+- **Request:** Recommend books related to entrepreneurship and personal finance, preferably under ₹500.  
+- **Response:** Returns two curated book recommendations that align with business and finance themes, filtered for affordability and category relevance using semantic search and LLM refinement.  
+
+
 ---
 
 ## Book Recommendations – Design Optimizations Summary
 
 The recommendation engine is engineered for speed, accuracy, and scale. This allows the system to deliver highly relevant book suggestions with minimal latency, even across millions of books, through the following optimizations:
 
-* **PostgreSQL + pgvector Integration:**
-  Enables efficient high-dimensional vector similarity search with support for semantic relevance.
-
-* **HNSW Indexing:**
-  Uses Hierarchical Navigable Small World (HNSW) graphs for sub-millisecond vector search performance, even at scale.
-
-* **Stateless & Modular Architecture:**
-  Each service is loosely coupled and stateless, allowing seamless horizontal scaling under heavy load.
-
-* **Offloaded LLM & Embedding Tasks:**
-  All resource-intensive processing, including LLM-based filtering and vector embedding, is handled outside the main API thread—ensuring minimal latency during API calls.
-
-* **Real-Time Recommendations at Scale:**
-  The engine remains performant and responsive even as the catalog of books grows exponentially.
-
-* **Strict Prompting Strategy:**
-  Groq LLM is guided with precise rules—returning only valid IDs, limiting to two results, and prioritizing category match. This ensures structured and reliable outputs.
-
-* **Fallback for No Match Scenarios:**
-  If no high-confidence match is found, the system gracefully responds with a clear, fallback message—avoiding forced or irrelevant suggestions.
-
-* **Asynchronous Embedding Pipeline:**
-  Embedding generation is fully decoupled and handled in the background using a task queue, boosting throughput without blocking user-facing endpoints.
+- **PostgreSQL + pgvector Integration:** Enables efficient high-dimensional vector similarity search with support for semantic relevance.  
+- **HNSW Indexing:** Uses Hierarchical Navigable Small World (HNSW) graphs for sub-millisecond vector search performance, even at scale.  
+- **Stateless & Modular Architecture:** Each service is loosely coupled and stateless, allowing seamless horizontal scaling under heavy load.  
+- **Offloaded LLM & Embedding Tasks:** All resource-intensive processing, including LLM-based filtering and vector embedding, is handled outside the main API thread—ensuring minimal latency during API calls.  
+- **Real-Time Recommendations at Scale:** The engine remains performant and responsive even as the catalog of books grows exponentially.  
+- **Strict Prompting Strategy:** Groq LLM is guided with precise rules—returning only valid IDs, limiting to two results, and prioritizing category match. This ensures structured and reliable outputs.  
+- **Fallback for No Match Scenarios:** If no high-confidence match is found, the system gracefully responds with a clear, fallback message—avoiding forced or irrelevant suggestions.  
+- **Asynchronous Embedding Pipeline:** Embedding generation is fully decoupled and handled in the background using a task queue, boosting throughput without blocking user-facing endpoints.  
   
 ---
 
 ## Performance and Scalability Highlights
 
-- **Asynchronous Embedding Pipeline:** Improves throughput and decouples AI logic from core APIs.
 - **Modular Architecture:** Follows clean coding practices with separation of controller, service, and repository layers.
 - **Role-Based Access Control:** Ensures only authorized users access specific actions.
 - **Optimized DTO Usage:** Reduces payload size and boosts performance with AutoMapper.
+- **Asynchronous Embedding Pipeline:** Improves throughput and decouples AI logic from core APIs.
 - **Logging with Serilog:** Logs API activity to both console and persistent storage.
 - **Scalable Storage:** PostgreSQL and SQL Server integration support high data volume and fast access.
 
@@ -222,17 +229,17 @@ BookFlixConnectionString=Host=localhost;Port=5432;Database=BookFlixDb;Username=y
 BookFlixAuthDbConnectionString=Server=localhost;Database=BookFlixAuthDb;Trusted_Connection=True;TrustServerCertificate=True
 
 #### #JWT Configuration
-JWT_Key=your_super_secret_key
-JWT_Issuer=https://localhost:7016/
-JWT_Audience=https://localhost:7016/
+JWT_Key=your_super_secret_key  
+JWT_Issuer=https://localhost:7164/  
+JWT_Audience=https://localhost:7164/  
 
 #### #Python Embedding Service (if using pythonnet)
-PythonDLLPath=C:/Path/To/pythonXY.dll
-PythonScriptsFolder=C:/Path/To/BookFlix/Python
+PythonDLLPath=C:/Path/To/pythonXY.dll  
+PythonScriptsFolder=C:/Path/To/BookFlix/Python  
 
 #### #Groq AI Configuration
-GroqApiKey=your_groq_api_key
-GroqLLMModel=llama3-8b-instruct
+GroqApiKey=your_groq_api_key  
+GroqLLMModel=llama3-8b-instruct  
 </details>
 
 ## 3. Apply Migrations
