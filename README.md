@@ -113,11 +113,39 @@ BookFlix provides dynamic data operations via filterable, sortable, and pageable
 - **Parameter Validation:** Only specific query keys are allowed for safety and predictability.
 - **Role-based access:** Access to Endpoints based on roles (Reader, Writer, Admin).
 
-#### Example Request
-GET /api/books?filterOn=Title&filterQuery=finance&sortBy=Price&isAscending=true&pageNumber=1&pageSize=10
+## Example Request
+
+### POST `/books`
+
+**Request Body:**  
+
+```json
+{
+    "title": "One Hundred Years of Solitude",
+    "description": null,
+    "author": "Gabriel Garcia Marquez",
+    "price": 6990,
+    "categoryid": "17ea39ed-3066-44f6-a0c1-d97be6b15de9",
+    "ratingid": "4bb3890e-2acc-4ebe-9e5f-e0527b4b33cb"
+}
+```
+**Validation Rules for Request body:**
+
+| Field        | Type     | Constraints                                                                 |
+|--------------|----------|------------------------------------------------------------------------------|
+| `Title`      | string   | Required, MinLength: 3, MaxLength: 50                                       |
+| `Description`| string  | Optional, MaxLength: 1000                                                    |
+| `Author`     | string   | Required, MaxLength: 50                                                      |
+| `Price`      | int      | Required, Range: 0–100000                                                    |
+| `CategoryId` | GUID     | Required                                                                     |
+| `RatingId`   | GUID     | Required                                                                     |
 
 
-#### Query Parameters
+### GET `/books`
+
+`GET /api/books?filterOn=Title&filterQuery=finance&sortBy=Price&isAscending=true&pageNumber=1&pageSize=10`
+
+**Query Parameters:**
 
 | Parameter     | Type   | Description                                                                 |
 |---------------|--------|-----------------------------------------------------------------------------|
@@ -189,10 +217,31 @@ The system uses strict rules in the prompt to ensure consistent output format an
   - The recommended books
   - Optional reasoning/explanation from the LLM (if `IsExplanationNeeded` is provided as `true` by the user)
 
-### Example Query
+## Example Query
+
 - **Request:** Recommend books related to entrepreneurship and personal finance, preferably around ₹500.  
 - **Response:** Returns two curated book recommendations that align with business and finance themes, filtered for affordability and category relevance using semantic search and LLM refinement.
 
+### POST `/recommend`
+
+**Request Body:**  
+
+```json
+{
+  "query": "Recommend books related to entrepreneurship and personal finance, preferably around ₹500",
+  "isExplanationNeeded": true
+}
+```
+
+**Validation Rules for Request Body:**
+
+| Field               | Type    | Constraints                          |
+|---------------------|---------|--------------------------------------|
+| `query`             | string  | Required, minimum 24 characters     |
+| `isExplanationNeeded` | boolean | Optional          |
+
+**Response:**
+  
 ```json
 {
   "message": "Here are the recommended Books based on your query among our available Books.",
@@ -210,7 +259,6 @@ The system uses strict rules in the prompt to ensure consistent output format an
   "explanation": "Okay, so I need to help the user by recommending books based on their query. The user is asking for books related to entrepreneurship and personal finance, preferably around ₹500. Let me look at the available books and see which ones fit best.\n\nFirst, I'll go through each book one by one. The first book is \"Rich Dad Poor Dad\" by Robert T. Kiyosaki, priced at ₹720. The category is Finance, which matches the user's query. The price is a bit above ₹500, but it's close. The description talks about contrasting mindsets around money and wealth-building, which seems relevant.\n\nThe second book is another \"Rich Dad Poor Dad\" by Robert Kiyosaki, priced at ₹950. This is more expensive, so it's probably not the best fit since the user prefers around ₹500. The category is still Finance, but the higher price might make it less ideal.\n\nThe third book is \"The Simple Path to Wealth\" by JL Collins at ₹1090. This is even more expensive and might be out of the user's preferred range. The category is Finance, but the price is too high.\n\nThe fourth book is \"The Little Book of Common Sense Investing\" by John C. Bogle, priced at ₹990. Again, this is over the user's preferred price and might not be the best recommendation.\n\nThe fifth book is \"I Will Teach You to Be Rich\" by Ramit Sethi, priced at ₹1000. This is the most expensive one and definitely above the user's preference.\n\nSo, considering the price, the first book is the closest to ₹500. It's in the Finance category, which aligns with the user's interest in personal finance. Even though it's slightly over, it's the best fit among the options. The other books are either the same title with a higher price or more expensive, so they don't fit as well.\n\nI should recommend the first book because it's the most relevant and closest to the user's price preference. Since the user asked for up to two books, but only one fits well, I'll just include that one."
 }
 ```
-
 
 ---
 
