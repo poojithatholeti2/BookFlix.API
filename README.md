@@ -136,6 +136,9 @@ GET /api/books?filterOn=Title&filterQuery=finance&sortBy=Price&isAscending=true&
 
 Embeddings are generated asynchronously via a Python-based microservice integrated into the .NET application. This design ensures that the API remains highly responsive while handling AI workloads efficiently.
 
+[Book Creation and Embedding Service Codeflow]
+![Book Creation Flow](./Assets/EmbeddingService_Image.jpg)
+
 ### 1. **Book Creation Request:**
 - When a client sends a `POST /api/books` request, the book data is passed from the controller to the service layer and saved into the database via the repository layer. A success response is returned immediately without waiting for embedding generation.
 
@@ -155,6 +158,9 @@ Embeddings are generated asynchronously via a Python-based microservice integrat
 ## AI-Powered Recommendation Engine Workflow
 
 BookFlix delivers intelligent recommendations through a multi-step, AI-augmented pipeline that blends powerful vector-based similarity search with LLM-driven contextual filtering.
+
+[Recommendation Service Codeflow]
+![Recommendation Flow](./Assets/RecommendationService_Image.jpg)
 
 ### 1. User Query Initiation
 - The user sends a plain-text request like:
@@ -184,8 +190,27 @@ The system uses strict rules in the prompt to ensure consistent output format an
   - Optional reasoning/explanation from the LLM (if `IsExplanationNeeded` is provided as `true` by the user)
 
 ### Example Query
-- **Request:** Recommend books related to entrepreneurship and personal finance, preferably under ₹500.  
-- **Response:** Returns two curated book recommendations that align with business and finance themes, filtered for affordability and category relevance using semantic search and LLM refinement.  
+- **Request:** Recommend books related to entrepreneurship and personal finance, preferably around ₹500.  
+- **Response:** Returns two curated book recommendations that align with business and finance themes, filtered for affordability and category relevance using semantic search and LLM refinement.
+
+```json
+{
+  "message": "Here are the recommended Books based on your query among our available Books.",
+  "books": [
+    {
+      "id": "01972f76-6a17-7792-8d36-a2dc17e155b9",
+      "title": "Rich Dad Poor Dad",
+      "description": "Personal finance classic contrasting two mindsets around money and wealth-building.",
+      "author": "Robert T. Kiyosaki",
+      "price": 720,
+      "categoryName": "Finance",
+      "ratingName": "Average"
+    }
+  ],
+  "explanation": "Okay, so I need to help the user by recommending books based on their query. The user is asking for books related to entrepreneurship and personal finance, preferably around ₹500. Let me look at the available books and see which ones fit best.\n\nFirst, I'll go through each book one by one. The first book is \"Rich Dad Poor Dad\" by Robert T. Kiyosaki, priced at ₹720. The category is Finance, which matches the user's query. The price is a bit above ₹500, but it's close. The description talks about contrasting mindsets around money and wealth-building, which seems relevant.\n\nThe second book is another \"Rich Dad Poor Dad\" by Robert Kiyosaki, priced at ₹950. This is more expensive, so it's probably not the best fit since the user prefers around ₹500. The category is still Finance, but the higher price might make it less ideal.\n\nThe third book is \"The Simple Path to Wealth\" by JL Collins at ₹1090. This is even more expensive and might be out of the user's preferred range. The category is Finance, but the price is too high.\n\nThe fourth book is \"The Little Book of Common Sense Investing\" by John C. Bogle, priced at ₹990. Again, this is over the user's preferred price and might not be the best recommendation.\n\nThe fifth book is \"I Will Teach You to Be Rich\" by Ramit Sethi, priced at ₹1000. This is the most expensive one and definitely above the user's preference.\n\nSo, considering the price, the first book is the closest to ₹500. It's in the Finance category, which aligns with the user's interest in personal finance. Even though it's slightly over, it's the best fit among the options. The other books are either the same title with a higher price or more expensive, so they don't fit as well.\n\nI should recommend the first book because it's the most relevant and closest to the user's price preference. Since the user asked for up to two books, but only one fits well, I'll just include that one."
+}
+```
+
 
 ---
 
