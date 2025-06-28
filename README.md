@@ -1,8 +1,8 @@
 # BookFlix — Intelligent Book Management & Recommendation API
-![.NETCore](https://img.shields.io/badge/.NETCore-8.0-blue)
+![.NET](https://img.shields.io/badge/.NET-8.0-blue)
+![ASP.NETCore](https://img.shields.io/badge/ASP.NETCore-8-orange)
 ![EntityFramework](https://img.shields.io/badge/EntityFrameworkCore-8.0-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
-![pgVector](https://img.shields.io/badge/pgVector-enabled-success)
 ![SQLServer](https://img.shields.io/badge/SQLServer-16-blue)
 ![LLM-Powered](https://img.shields.io/badge/LLMAPI-Groq-red)
 ![Python](https://img.shields.io/badge/Python-3-yellow)
@@ -219,8 +219,8 @@ The system uses strict rules in the prompt to ensure consistent output format an
 
 ## Example Query
 
-- **Request:** Recommend books related to entrepreneurship and personal finance, preferably around ₹500.  
-- **Response:** Returns two curated book recommendations that align with business and finance themes, filtered for affordability and category relevance using semantic search and LLM refinement.
+- **Request:** Recommend books related to history, preferably around ₹500.
+- **Response:** Returns two curated book recommendations that align with history, filtered for affordability and category relevance using semantic search and LLM refinement.
 
 ### POST `/recommend`
 
@@ -228,7 +228,7 @@ The system uses strict rules in the prompt to ensure consistent output format an
 
 ```json
 {
-  "query": "Recommend books related to entrepreneurship and personal finance, preferably around ₹500",
+  "query": "Recommend books related to history, preferably around ₹500",
   "isExplanationNeeded": true
 }
 ```
@@ -247,17 +247,27 @@ The system uses strict rules in the prompt to ensure consistent output format an
   "message": "Here are the recommended Books based on your query among our available Books.",
   "books": [
     {
-      "id": "01972f76-6a17-7792-8d36-a2dc17e155b9",
-      "title": "Rich Dad Poor Dad",
-      "description": "Personal finance classic contrasting two mindsets around money and wealth-building.",
-      "author": "Robert T. Kiyosaki",
-      "price": 720,
-      "categoryName": "Finance",
-      "ratingName": "Average"
+      "id": "01972f77-7756-7bff-b5cc-2c8998fc89c3",
+      "title": "India After Gandhi",
+      "description": "A comprehensive and readable history of India post-independence.",
+      "author": "Ramachandra Guha",
+      "price": 750,
+      "categoryName": "History",
+      "ratingName": "Good"
+    },
+    {
+      "id": "01972f78-e10c-7d19-a750-179c23ec1f8e",
+      "title": "The Discovery of India",
+      "description": "Jawaharlal Nehru's sweeping reflection on India's rich heritage and its journey through time.",
+      "author": "Jawaharlal Nehru",
+      "price": 520,
+      "categoryName": "History",
+      "ratingName": "Good"
     }
   ],
-  "explanation": "Okay, so I need to help the user by recommending books based on their query. The user is asking for books related to entrepreneurship and personal finance, preferably around ₹500. Let me look at the available books and see which ones fit best.\n\nFirst, I'll go through each book one by one. The first book is \"Rich Dad Poor Dad\" by Robert T. Kiyosaki, priced at ₹720. The category is Finance, which matches the user's query. The price is a bit above ₹500, but it's close. The description talks about contrasting mindsets around money and wealth-building, which seems relevant.\n\nThe second book is another \"Rich Dad Poor Dad\" by Robert Kiyosaki, priced at ₹950. This is more expensive, so it's probably not the best fit since the user prefers around ₹500. The category is still Finance, but the higher price might make it less ideal.\n\nThe third book is \"The Simple Path to Wealth\" by JL Collins at ₹1090. This is even more expensive and might be out of the user's preferred range. The category is Finance, but the price is too high.\n\nThe fourth book is \"The Little Book of Common Sense Investing\" by John C. Bogle, priced at ₹990. Again, this is over the user's preferred price and might not be the best recommendation.\n\nThe fifth book is \"I Will Teach You to Be Rich\" by Ramit Sethi, priced at ₹1000. This is the most expensive one and definitely above the user's preference.\n\nSo, considering the price, the first book is the closest to ₹500. It's in the Finance category, which aligns with the user's interest in personal finance. Even though it's slightly over, it's the best fit among the options. The other books are either the same title with a higher price or more expensive, so they don't fit as well.\n\nI should recommend the first book because it's the most relevant and closest to the user's price preference. Since the user asked for up to two books, but only one fits well, I'll just include that one."
+  "explanation": "Okay, so I need to help the user by recommending books based on their query. The user is asking for books related to history, preferably around ₹500. I have five books to choose from, and I can recommend at most two. First, I'll look at each book's details. The first book is \"The Guide\" by R. K. Narayan. It's in the Literature category and costs ₹789. Since the user is interested in history, this doesn't fit, and the price is a bit higher than preferred. Next is \"The Little Book of Common Sense Investing\" by John C. Bogle. It's in the Finance category and priced at ₹990. That's way over the user's preferred price and not related to history, so I'll skip this one. The third book is \"The History of the Ancient World\" by Susan Wise Bauer. It's in the History category, which is exactly what the user wants. However, the price is ₹1399, which is significantly higher than ₹500. I'll note this but might not prioritize it unless there are no better options. The fourth book is \"India After Gandhi\" by Ramachandra Guha. It's also in the History category and priced at ₹750. This is closer to the user's price range but still a bit higher. It's a strong candidate since it fits the category. The fifth book is \"The Discovery of India\" by Jawaharlal Nehru. This one is in the History category as well and priced at ₹520, which is very close to the user's preferred price of around ₹500. This seems like the best fit. Now, I need to choose the top two. \"The Discovery of India\" is the closest in price and fits the category perfectly. \"India After Gandhi\" is a good second choice because it's also in the History category, even though it's a bit pricier. \"The History of the Ancient World\" is too expensive, so I'll leave it out. So, the two books I'll recommend are \"The Discovery of India\" and \"India After Gandhi.\" Their GUIDs are \"01972f78-e10c-7d19-a750-179c23ec1f8e\" and \"01972f77-7756-7bff-b5cc-2c8998fc89c3\" respectively. I'll format them as a comma-separated string without any spaces."
 }
+
 ```
 
 ---
