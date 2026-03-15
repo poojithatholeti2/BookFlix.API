@@ -8,28 +8,60 @@ namespace BookFlix.API
         private static readonly PythonEngineSingleton instance = new PythonEngineSingleton();
         public static PythonEngineSingleton Instance => instance;
 
+        private bool _isReady = false;
+        public bool IsReady => _isReady;
         private PythonEngineSingleton()
         {
-            Console.WriteLine("Initializing Python and its dependencies. This might take a moment. ");
-
-            var stopwatch = Stopwatch.StartNew();
-
+            Console.WriteLine("Initializing Python engine...");
             PythonEngine.Initialize();
             PythonEngine.BeginAllowThreads();
+            Console.WriteLine("Python engine initialized successfully.");
+        }
 
-            //assigning it to discard operator, as embedding for 'warmup' can be ignored
-            _ = RunWithGIL(() =>
+        public async Task WarmUpAsync()
+        {
+            Console.WriteLine("Initializing sentence transformer model...");
+            await Task.Run(() =>
+            {
+                using (Py.GIL())
                 {
                     dynamic sys = Py.Import("sys");
                     sys.path.append(Environment.GetEnvironmentVariable("PythonScriptsFolder"));
                     dynamic embeddingModule = Py.Import("embedding_service");
-                    return embeddingModule.get_embedding("warmup"); //dummy call
-                });
-
-            stopwatch.Stop();
-            Console.WriteLine($"Initialized Python and model warm-up time is: {stopwatch.ElapsedMilliseconds} ms");
+                    embeddingModule.get_embedding("warmup"); // dummy call to warm up the model
+                }
+            });
+            Console.WriteLine("Sentence transformer model warmed up successfully.");
+            _isReady = true;
         }
-        
+
+        //public sealed class PythonEngineSingleton
+        //{
+        //    private static readonly PythonEngineSingleton instance = new PythonEngineSingleton();
+        //    public static PythonEngineSingleton Instance => instance;
+
+        //    private PythonEngineSingleton()
+        //    {
+        //        Console.WriteLine("Initializing Python and its dependencies. This might take a moment. ");
+
+        //        var stopwatch = Stopwatch.StartNew();
+
+        //        PythonEngine.Initialize();
+        //        PythonEngine.BeginAllowThreads();
+
+        //        //assigning it to discard operator, as embedding for 'warmup' can be ignored
+        //        _ = RunWithGIL(() =>
+        //            {
+        //                dynamic sys = Py.Import("sys");
+        //                sys.path.append(Environment.GetEnvironmentVariable("PythonScriptsFolder"));
+        //                dynamic embeddingModule = Py.Import("embedding_service");
+        //                return embeddingModule.get_embedding("warmup"); //dummy call
+        //            });
+
+        //        stopwatch.Stop();
+        //        Console.WriteLine($"Initialized Python and model warm-up time is: {stopwatch.ElapsedMilliseconds} ms");
+        //    }
+
         // T is python object
         public T RunWithGIL<T>(Func<T> func)
         {

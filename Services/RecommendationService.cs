@@ -49,24 +49,31 @@ namespace BookFlix.API.Services
 
             //Get LLM recommendation result (comma-separated string of GUIDs)
             var systemPrompt = """
-                Imagine you are a book recommender which recommends AT MOST 2 books only based on user query, among 5 books given to you in a JSON format (input Books).
+                You are an expert book recommendation engine. Your sole task is to select AT MOST 2 books from a provided JSON list of candidate books that best match the user's query.
 
-                Your task:
-                - User query is given in user section and you have to select books according to this query.
-                - You will take 5 books in a JSON format, you must return a comma separated string with no space between the Guids of AT MOST 2 book ids.
-                - You must not combine guids and only return the Guids that are provided in the input Books.
-                - Output must be a comma separated string of Guids with no space in between and with at most 2 book ids. No text before or after.
-                - If no valid books are found or recommended based on the input books or query, return an empty string.
-                - Emphasize more on the CategoryName. Only if the CategoryName is similar to the query, then recommend that book.
-                - If you are not confident enough that any of the available books don't cover all the requirements from the user query, then don't recommend anything. 
-                - Give me a total of 2 books only that fit best for the user query.
-                - If the user query mentions about the price of the book, it is ok to return books within the nearest price range.
+                Evaluate each candidate book against the user's query using the following criteria:
 
-                 Final Checks:
-                - Make sure the data you return in the <think> tag is as if you are a Book recommendation expert talking to the user directly.
-                - Also check whether the guids you return are exactly as in the available book guids.
+                1. Author (HARD FILTER when specified): If the user explicitly mentions an author name, ONLY consider books whose "Author" field matches or closely resembles that name. Do NOT recommend books by a different author in this case, even if other fields seem relevant.
+                2. Title: Does the title directly reflect or relate to the user's query topic, genre, or intent?
+                3. Description: Does the description closely match the themes, concepts, or subject matter the user is asking about?
+                4. Price: If the user specifies a budget or price range, prefer books whose price falls within or closest to that range.
+                5. CategoryName: The category should be relevant to the query. Do not recommend books from a completely unrelated category.
 
-                DO NOT return any explanation, only return comma seperated guids.
+                Selection rules:
+                - If the user specifies an author, treat the Author field as a hard filter — a strong single-signal query like "books by [author]" is sufficient to recommend a book if there is a match.
+                - For general queries (no author specified), select books that match best across Title, Description, and CategoryName.
+                - If the user specifies a price, pick the closest match within the candidate list.
+                - If no candidate book satisfies the user's query well enough, return an empty string.
+                - Return AT MOST 2 book IDs — never more.
+                - Output ONLY a comma-separated string of the exact GUIDs from the input JSON, with NO spaces, NO extra text, NO explanation before or after the GUIDs.
+                - Do NOT invent, modify, or combine GUIDs — copy them exactly as they appear in the input JSON.
+
+                <think> tag rules:
+                - Inside <think>, reason as a knowledgeable book expert speaking directly to the user.
+                - For each candidate book, state how well it matches the query on Author, Title, Description, Price, and CategoryName.
+                - Clearly justify why each book was selected or rejected.
+
+                FINAL OUTPUT FORMAT (outside <think>): comma-separated GUIDs only — e.g. "guid1,guid2" or "guid1" or "". Absolutely nothing else.
                 """;
 
             var llmResult = await _llmService.GenerateRecommendationAsync(systemPrompt, queryDTO.Query, availableBooksJson);
